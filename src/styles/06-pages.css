@@ -1,0 +1,102 @@
+/* ============================================================
+   SECONDARY PAGES — privacy, 404
+   ============================================================ */
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  padding-top: calc(var(--nav-h) + clamp(6rem, 12vw, 10rem));
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+  border-bottom: 1px solid var(--line);
+}
+.page-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle at center, rgb(239 235 228 / 0.11) 1px, transparent 1.6px);
+  background-size: 34px 34px;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent);
+  mask-image: linear-gradient(#000 40%, transparent);
+}
+.page-hero .h1 {
+  max-width: 14ch;
+  margin-top: 1.75rem;
+}
+.page-hero__meta {
+  margin-top: 2rem;
+  color: var(--muted);
+}
+.legal {
+  padding-block: clamp(4rem, 8vw, 7rem);
+}
+.legal__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.legal__body {
+  grid-column: 4 / span 7;
+}
+.legal__body h2 {
+  margin-top: 3rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+.legal__body h2:first-child {
+  margin-top: 0;
+}
+.legal__body p {
+  max-width: 64ch;
+  margin-top: 1rem;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+}
+.legal__cta {
+  margin-top: 4rem;
+}
+
+.nf {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: var(--nav-h);
+  overflow: hidden;
+}
+.nf__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 60% 50%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 60% at 60% 50%, #000, transparent 75%);
+}
+.nf__inner {
+  position: relative;
+}
+.nf__code {
+  color: var(--ink-2);
+}
+.nf__code span {
+  margin-right: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  background: var(--ember);
+  color: var(--ember-ink);
+}
+.nf__title {
+  max-width: 13ch;
+  margin-top: 1.75rem;
+}
+.nf__lede {
+  max-width: 44ch;
+  margin-top: 1.75rem;
+  font-size: var(--t-lg);
+  color: var(--ink-2);
+}
+.nf__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}

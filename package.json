@@ -1,0 +1,22 @@
+{
+  "name": "rudra-infotech-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rudra InfoTech Lab — agency website. Zero-dependency TypeScript static site generator.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json && node .build/scripts/build.js",
+    "serve": "node .build/scripts/serve.js",
+    "preview": "npm run build && npm run serve",
+    "screenshots": "tsc -p tsconfig.json && node .build/scripts/screenshots.js",
+    "og": "tsc -p tsconfig.json && node .build/scripts/og.js",
+    "qa": "npm run build && node .build/scripts/qa.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

@@ -1,0 +1,234 @@
+/* ============================================================
+   MOTION
+   Hidden states only apply when JS is running (html.js) and the
+   visitor hasn't asked for reduced motion (html.rm).
+   ============================================================ */
+
+/* Hero intro — pure CSS, starts on first paint */
+.js:not(.rm) [data-intro] {
+  opacity: 0;
+  animation: intro 1.3s var(--ease) forwards;
+  animation-delay: calc(0.15s + var(--d, 0) * 0.1s);
+}
+.js:not(.rm) [data-intro-split] .w > span {
+  transform: translate3d(0, 110%, 0);
+  animation: rise 1.25s var(--ease) forwards;
+  animation-delay: calc(0.2s + var(--i) * 0.055s);
+}
+.js:not(.rm) .console__body li {
+  opacity: 0;
+  animation: fade-in 0.35s ease forwards;
+  animation-delay: calc(1.5s + var(--l) * 0.42s);
+}
+
+/* Scroll reveals */
+.js:not(.rm) [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition: opacity 1s var(--ease), transform 1.2s var(--ease);
+  transition-delay: calc(var(--d, 0) * 0.08s);
+}
+.js:not(.rm) [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+.js:not(.rm) [data-split]:not([data-intro-split]) .w > span {
+  transform: translate3d(0, 110%, 0);
+  transition: transform 1.15s var(--ease);
+  transition-delay: calc(var(--i) * 0.045s);
+}
+.js:not(.rm) [data-split].is-in .w > span {
+  transform: none;
+}
+
+/* Statement word scrub */
+.js:not(.rm) .statement__text .sw {
+  opacity: 0.16;
+}
+.js:not(.rm) .statement__text .sw.is-lit {
+  opacity: 1;
+}
+
+/* Process focus */
+.js:not(.rm) .step {
+  opacity: 0.3;
+}
+.js:not(.rm) .step.is-active {
+  opacity: 1;
+}
+.js:not(.rm) .step.is-done {
+  opacity: 0.55;
+}
+
+/* Service panel entrance */
+.svc__panel.is-entering > * {
+  animation: panel-in 0.8s var(--ease) both;
+}
+.svc__panel.is-entering > :nth-child(2) {
+  animation-delay: 0.03s;
+}
+.svc__panel.is-entering > :nth-child(3) {
+  animation-delay: 0.06s;
+}
+.svc__panel.is-entering > :nth-child(4) {
+  animation-delay: 0.09s;
+}
+.svc__panel.is-entering > :nth-child(5) {
+  animation-delay: 0.12s;
+}
+.svc__panel.is-entering > :nth-child(6) {
+  animation-delay: 0.15s;
+}
+.svc__panel.is-entering .svc-art * {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: draw 1.6s var(--ease) forwards;
+}
+
+/* Footer letters rise in */
+.js:not(.rm) .footer__giant:not(.is-in) .footer__letters span {
+  --ty: 40%;
+}
+.js:not(.rm) .footer__giant.is-in .footer__letters span {
+  transition-delay: calc(var(--i) * 0.06s);
+}
+
+/* Page transitions (cross-document View Transitions, progressive) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: vt-out 0.45s var(--ease-io) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 0.7s var(--ease) both;
+}
+
+/* Keyframes */
+@keyframes intro {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rise {
+  to {
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+@keyframes ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+@keyframes glow-drift {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    transform: translate(-42%, -56%) scale(1.12);
+  }
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .tech__marquees {
+    display: none;
+  }
+  .hero__glow,
+  .cta__orb::before,
+  .about__ring {
+    animation: none !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+.rm .tech__marquees {
+  display: none;
+}

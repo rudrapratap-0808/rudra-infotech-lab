@@ -1,0 +1,4 @@
+# Vercel builds from source — never upload local build output.
+.build/
+dist/
+node_modules/
