@@ -84,6 +84,7 @@ function reelPinned() {
   if (!reel) return;
   const items = $$("[data-proj]", reel);
   const N = items.length;
+  if (!N) return;
   const rules = $("[data-reel-rules]", reel)!;
   const sep = $("[data-reel-sep]", reel)!;
   rules.innerHTML = "<i></i>".repeat(Math.max(0, N - 1));
@@ -93,7 +94,7 @@ function reelPinned() {
     media: $(".proj__media", el)!,
     frame: $(".frame", el)!,
     idx: $(".proj__index-i", el)!,
-    texts: $$(".proj__top, .proj__info, .proj__name, .proj__visit", el),
+    texts: $$(".proj__top, .proj__info, .proj__name, .proj__acts", el),
     link: $("[data-proj-link]", el),
     img: $("[data-proj-img]", el),
   }));
@@ -208,6 +209,7 @@ function servicesPinned() {
     return `${((last.left + last.width / 2 - r.left) / r.width) * 100}% ${((last.top + last.height / 2 - r.top) / r.height) * 100}%`;
   };
   const N = S.length;
+  if (!N) return;
   const tl = gsap.timeline({
     defaults: { ease: "power3.inOut" },
     scrollTrigger: {
@@ -261,6 +263,9 @@ function processPinned() {
   const stage = $("[data-proc]");
   if (!stage) return;
   const steps = $$("[data-step]", stage);
+  const N = steps.length;
+  if (!N) return;
+  const last = Math.max(1, N - 1);
   const fill = $("[data-proc-fill]", stage)!;
   const phase = $("[data-proc-phase]", stage);
   const viz = $("[data-viz]", stage);
@@ -271,20 +276,20 @@ function processPinned() {
     cur = i;
     steps.forEach((s, k) => { s.classList.toggle("is-active", k === i); s.classList.toggle("is-done", k < i); });
     if (phase) phase.textContent = pad(i + 1);
-    if (viz) viz.dataset.stage = String(i);
+    if (viz) viz.dataset.stage = String(Math.round((i / last) * 5));
   };
   set(0);
   const node = (v: number) => {
     const W = stage.clientWidth, m = parseFloat(getComputedStyle(root).getPropertyValue("--m")) || 40;
-    return (m + 48 + (W - 2 * m - 96) * (v / 5)) / W;
+    return (m + 48 + (W - 2 * m - 96) * (v / last)) / W;
   };
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: stage, start: "top top", end: "+=560%", pin: true, scrub: true,
       onUpdate: (s: ScrollTrigger) => {
         const q = Math.min(1, s.progress / 0.86);
-        set(Math.min(5, Math.floor(q * 6)));
-        fill.style.setProperty("--p", node(q * 5).toFixed(4));
+        set(Math.min(N - 1, Math.floor(q * N)));
+        fill.style.setProperty("--p", node(q * last).toFixed(4));
         navOverride(s.progress > 0.975 && s.progress < 1 ? "ink" : null);
       },
       onLeave: () => navOverride(null), onLeaveBack: () => navOverride(null),
@@ -297,6 +302,18 @@ function processLite() {
   for (const s of $$("[data-step]")) {
     ScrollTrigger.create({ trigger: s, start: "top 60%", end: "bottom 40%", toggleClass: "is-active" });
     gsap.from($(".st__name-i", s), { yPercent: 100, duration: 0.9, ease: "power4.out", scrollTrigger: { trigger: s, start: "top 80%" } });
+  }
+}
+
+/* ── Apps: APP / ANDROID slide in, phones drift at different speeds ── */
+function appsScene() {
+  for (const w of $$("[data-apps-w]")) {
+    gsap.fromTo(w, { xPercent: w.classList.contains("apps__w--app") ? -18 : 22 }, { xPercent: 0, ease: "none", scrollTrigger: { trigger: w, start: "top bottom", end: "top 35%", scrub: true } });
+  }
+  for (const set of $$("[data-app-phones]")) {
+    $$("[data-phone]", set).forEach((ph, i) =>
+      gsap.fromTo(ph, { y: [60, 0, 110][i] ?? 40 }, { y: [-30, 0, -50][i] ?? -20, ease: "none", scrollTrigger: { trigger: set, start: "top bottom", end: "bottom top", scrub: true } })
+    );
   }
 }
 
@@ -355,6 +372,7 @@ export function initScenes(introDone: Promise<void>): void {
       whyScene();
       closingScenes();
     }
+    appsScene();
     return () => root.classList.remove("stage");
   });
 }

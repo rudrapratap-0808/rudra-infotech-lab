@@ -1,10 +1,12 @@
-import { about, principles, process, tech } from "../data/content.js";
+import { paragraphs } from "../data/model.js";
+import { principles } from "../data/seed.js";
 import { chapters } from "../data/site.js";
+import { D, processSteps, toolkit as toolkitItems } from "../data/store.js";
 import { esc, html, nn } from "../lib/html.js";
 import { arrow, cropMarks, monogram } from "./symbols.js";
 import { chapterAttr, label } from "./ui.js";
 
-/* ── 06 WHY RUDRA — PAPER ─────────────────────────────────── */
+/* ── 05 WHY RUDRA — PAPER ─────────────────────────────────── */
 export const why = () => html`<section class="why" id="why" data-theme="paper" ${chapterAttr("why")} aria-labelledby="why-title">
   <div class="why__head grid">
     ${label(chapters.why.n, "Why Rudra InfoTech Lab", "why__label")}
@@ -36,7 +38,7 @@ export const why = () => html`<section class="why" id="why" data-theme="paper" $
   </ol>
 </section>`;
 
-/* ── 07 PROCESS — ORANGE ──────────────────────────────────── */
+/* ── 06 PROCESS — ORANGE ──────────────────────────────────── */
 const viz = () => `<span class="viz" data-viz data-stage="4" aria-hidden="true">
   <span class="viz__grid">${"<i></i>".repeat(8)}</span>
   <span class="viz__ui">
@@ -51,39 +53,44 @@ const viz = () => `<span class="viz" data-viz data-stage="4" aria-hidden="true">
   <svg class="viz__loop" viewBox="0 0 100 100"><path d="M84 38A36 36 0 1 0 86 58"/><path d="M78 30l7 9-11 2"/></svg>
 </span>`;
 
-export const processSection = () => html`<section class="proc" id="process" data-theme="orange" ${chapterAttr("process")} aria-labelledby="proc-title">
-  <div class="proc__stage" data-proc>
+export const processSection = () => {
+  const steps = processSteps();
+  if (!steps.length) return "";
+  return html`<section class="proc" id="process" data-theme="orange" ${chapterAttr("process")} aria-labelledby="proc-title">
+  <div class="proc__stage" data-proc style="--last:${Math.max(1, steps.length - 1)}">
     <header class="proc__head">
       ${label(chapters.process.n, chapters.process.label, "proc__label")}
       <h2 class="proc__title" id="proc-title">From first call to <em class="serif">go-live.</em></h2>
-      <p class="proc__aside">Six clear stages. You always know where your project is, what's next and what we need from you.</p>
+      <p class="proc__aside">${steps.length === 6 ? "Six" : esc(String(steps.length))} clear stages. You always know where your project is, what's next and what we need from you.</p>
     </header>
     <p class="proc__status mono" aria-hidden="true"><span>Phase / <b data-proc-phase>01</b></span><span>Status / Active</span></p>
     ${viz()}
     <span class="proc__line" aria-hidden="true"><span class="proc__fill" data-proc-fill></span></span>
     <ol class="proc__steps" role="list">
-      ${process.map(
+      ${steps.map(
         (s, i) => html`<li class="st${i === 0 ? " is-active" : ""}" data-step style="--i:${i}">
-          <span class="st__node" aria-hidden="true"><span>${esc(s.n)}</span></span>
-          <p class="st__meta mono">Phase / ${esc(s.n)}</p>
-          <h3 class="st__name display"><span class="st__name-i">${esc(s.title)}</span></h3>
-          <p class="st__body">${esc(s.body)}</p>
+          <span class="st__node" aria-hidden="true"><span>${nn(i + 1)}</span></span>
+          <p class="st__meta mono">Phase / ${nn(i + 1)}</p>
+          <h3 class="st__name display"><span class="st__name-i">${esc(s.name)}</span></h3>
+          <p class="st__body">${esc(s.description)}</p>
         </li>`
       )}
     </ol>
     <span class="proc__flood" data-theme="acid" aria-hidden="true" data-proc-flood></span>
   </div>
 </section>`;
+};
 
-/* ── 08 TOOLKIT — ACID ────────────────────────────────────── */
-const LANES = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [9, 10, 0],
-];
+/* ── 07 TOOLKIT — ACID ────────────────────────────────────── */
+/** Split the toolkit into up to four lanes (wrapping so every lane is full). */
+const laneIds = (n: number): number[][] => {
+  const L = n >= 4 ? 4 : n;
+  const per = Math.ceil(n / L);
+  return Array.from({ length: L }, (_, k) => Array.from({ length: per }, (_, j) => (k * per + j) % n));
+};
 
 const lane = (ids: number[], li: number) => {
+  const tech = toolkitItems();
   const items = ids
     .map((id, k) => {
       const t = tech[id];
@@ -91,38 +98,50 @@ const lane = (ids: number[], li: number) => {
       return `<span class="kt${outline ? " kt--o" : ""}" data-kt><span class="kt__n mono">/ ${nn(id + 1)} ${esc(t.kind)}</span><span class="kt__t display">${esc(t.name)}</span></span>`;
     })
     .join("");
-  const copy = `<span class="lane__copy">${items}${items}</span>`;
+  const copy = `<span class="lane__copy">${items.repeat(Math.max(2, Math.ceil(6 / ids.length)))}</span>`;
   return `<div class="lane" data-lane data-dir="${li % 2 ? -1 : 1}"><div class="lane__track" data-lane-track>${copy}${copy}</div></div>`;
 };
 
-export const toolkit = () => html`<section class="kit" id="toolkit" data-theme="acid" ${chapterAttr("toolkit")} aria-labelledby="kit-title">
+export const toolkit = () => {
+  const tech = toolkitItems();
+  if (!tech.length) return "";
+  return html`<section class="kit" id="toolkit" data-theme="acid" ${chapterAttr("toolkit")} aria-labelledby="kit-title">
   <header class="kit__head grid">
     ${label(chapters.toolkit.n, chapters.toolkit.label, "kit__label")}
     <h2 class="kit__title" id="kit-title">Tools of <em class="serif">the lab.</em></h2>
     <p class="kit__aside">Modern, proven web technology — picked to fit each project, not out of habit.</p>
   </header>
-  <div class="kit__lanes" aria-hidden="true" data-kit data-cursor="drag">${LANES.map(lane)}</div>
+  <div class="kit__lanes" aria-hidden="true" data-kit data-cursor="drag">${laneIds(tech.length).map(lane)}</div>
   <ol class="kit__index mono" role="list" aria-label="Technology stack">
     ${tech.map((t, i) => html`<li><span>${nn(i + 1)}</span> ${esc(t.name)} <span class="kit__kind">— ${esc(t.kind)}</span></li>`)}
   </ol>
 </section>`;
+};
 
-/* ── 09 THE LAB (About) — PAPER ───────────────────────────── */
-export const lab = () => html`<section class="lab" id="about" data-theme="paper" ${chapterAttr("lab")} aria-labelledby="lab-title">
+/* ── 08 THE LAB (About) — PAPER ───────────────────────────── */
+export const lab = () => {
+  const a = D().content.about;
+  const facts = [
+    { k: "What we do", v: a.what_we_do },
+    { k: "Who it's for", v: a.who_its_for },
+    { k: "How we work", v: a.how_we_work },
+  ].filter((f) => f.v);
+  return html`<section class="lab" id="about" data-theme="paper" ${chapterAttr("lab")} aria-labelledby="lab-title">
   <div class="lab__grid grid">
     ${label(chapters.lab.n, chapters.lab.label, "lab__label")}
     <p class="lab__fr mono" aria-hidden="true">Frame / 009</p>
     <h2 class="lab__statement serif" id="lab-title">
-      ${about.statement.map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}
+      ${[a.statement_1, a.statement_2].filter(Boolean).map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}
     </h2>
     <div class="lab__r" data-lab-r>${monogram()}</div>
     <p class="lab__name display" aria-hidden="true"><span>Rudra</span><span>InfoTech</span><span>Lab</span></p>
-    <div class="lab__text">${about.paragraphs.map((p) => html`<p>${esc(p)}</p>`)}</div>
-    <dl class="lab__facts mono">${about.facts.map((f) => html`<div><dt>${esc(f.k)}</dt><dd>${esc(f.v)}</dd></div>`)}</dl>
+    <div class="lab__text">${paragraphs(a.paragraphs).map((p) => html`<p>${esc(p)}</p>`)}</div>
+    ${facts.length ? html`<dl class="lab__facts mono">${facts.map((f) => html`<div><dt>${esc(f.k)}</dt><dd>${esc(f.v)}</dd></div>`)}</dl>` : ""}
   </div>
 </section>`;
+};
 
-/* ── 10 MANIFESTO — INK ───────────────────────────────────── */
+/* ── 09 MANIFESTO — INK ───────────────────────────────────── */
 export const manifesto = () => html`<section class="mani" data-theme="ink" ${chapterAttr("manifesto")} aria-labelledby="mani-title">
   <span class="mani__rules" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
   <h2 class="mani__text" id="mani-title">

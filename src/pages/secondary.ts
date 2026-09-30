@@ -1,17 +1,31 @@
 import { site } from "../data/site.js";
+import { D } from "../data/store.js";
 import { chars, esc, html } from "../lib/html.js";
+import { contactSection } from "../components/contact.js";
 import { gridLines, cta, tlink } from "../components/ui.js";
+import { pageLd } from "./seo.js";
+
+/* ── Contact ──────────────────────────────────────────────── */
+export const contactMeta = () => ({
+  title: `Contact — Start a Project | ${site.name}`,
+  description: `Tell ${site.name} about your website or app project — send a brief or chat on WhatsApp. We reply with honest next steps.`,
+});
+export const contactLd = () => {
+  const m = contactMeta();
+  return pageLd({ path: "/contact/", title: m.title, description: m.description, type: "ContactPage", breadcrumb: [["Home", "/"], ["Contact", "/contact/"]] });
+};
+export const contactPage = () => contactSection({ level: "h1", id: "contact" });
 
 /* ── Privacy ──────────────────────────────────────────────── */
-export const privacyMeta = {
-  title: "Privacy Note — Rudra InfoTech Lab",
-  description: "How Rudra InfoTech Lab handles the information you share through our website and project enquiry form.",
-};
+export const privacyMeta = () => ({
+  title: `Privacy Note | ${site.name}`,
+  description: `How ${site.name} handles the information you share through our website, project enquiry form and WhatsApp.`,
+});
 
 const SECTIONS: [string, string][] = [
-  ["What we collect", "When you send a project enquiry, we receive the details you type into the form: your name, email address, and — if you choose to share them — your phone or WhatsApp number, business name, website type, budget range and project details."],
+  ["What we collect", "When you send a project enquiry, we receive the details you type into the form: your name, email address, and — if you choose to share them — your phone or WhatsApp number, business name, the service you need, your budget range and project details. We also store the page you sent it from and a one-way hash of your IP address, used only to stop spam."],
   ["Why we collect it", "Only to reply to your enquiry and discuss your project. We don't sell your information, and we don't add you to marketing lists without asking."],
-  ["How it's handled", "Form submissions may be delivered through a third-party form service or messaging app so that they reach our inbox. Those providers process the data solely to deliver your message."],
+  ["How it's handled", "Enquiries are stored in our private project database (hosted by Supabase) and may also reach us as an email notification. Only our team can read them. If you message us on WhatsApp, that conversation is handled by WhatsApp under its own terms."],
   ["How long we keep it", "We keep enquiry details for as long as needed to respond and, if we work together, to deliver your project."],
   ["Your choices", "__CHOICES__"],
   ["Cookies", "This website doesn't use advertising or tracking cookies."],
@@ -19,9 +33,9 @@ const SECTIONS: [string, string][] = [
 
 export const privacy = () => {
   const updated = new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
-  const email = site.contact.email;
+  const email = D().contact.email;
   const choices = `You can ask us at any time to see, correct or delete the information you've shared${
-    email ? ` by writing to <a class="ulink" href="mailto:${esc(email)}">${esc(email)}</a>` : " through the contact form"
+    email ? ` by writing to <a class="ulink" href="mailto:${esc(email)}">${esc(email)}</a>` : ` through the <a class="ulink" href="/contact/">contact page</a>`
   }.`;
   return html`<section class="pp" id="top" data-theme="paper" data-chapter="/ — Privacy" aria-labelledby="privacy-title">
   ${gridLines("gridlines pp__grid")}
@@ -41,10 +55,10 @@ export const privacy = () => {
 };
 
 /* ── 404 ──────────────────────────────────────────────────── */
-export const notFoundMeta = {
-  title: "Page Not Found — Rudra InfoTech Lab",
-  description: "This page doesn't exist. Head back to Rudra InfoTech Lab to see our work or start a project.",
-};
+export const notFoundMeta = () => ({
+  title: `Page Not Found | ${site.name}`,
+  description: `This page doesn't exist. Head back to ${site.name} to see our work or start a project.`,
+});
 
 export const notFound = () => html`<section class="nf" id="top" data-theme="orange" data-chapter="/ 404 Not found" aria-labelledby="nf-title">
   ${gridLines("gridlines nf__grid")}
@@ -54,6 +68,6 @@ export const notFound = () => html`<section class="nf" id="top" data-theme="oran
   <p class="nf__serif serif"><em class="serif">This page wandered off.</em></p>
   <div class="nf__ctas">
     ${cta("Back to home", "/", "ink", "e")}
-    ${tlink("View our work", "/#work", "e")}
+    ${tlink("View our work", "/projects/", "e")}
   </div>
 </section>`;

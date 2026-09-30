@@ -1,18 +1,25 @@
-import { chapterText, nav, navPrimary, site, socialLinks, type ChapterKey } from "../data/site.js";
-import { esc, html, nn } from "../lib/html.js";
+import { waLink, prettyPhone } from "../data/model.js";
+import { nav, navPrimary, site } from "../data/site.js";
+import { availabilityText, D, socialLinks } from "../data/store.js";
+import { esc, EXT, html, nn } from "../lib/html.js";
 import { arrow } from "./symbols.js";
 import { cta, gridLines, status } from "./ui.js";
 
-/** Fixed navigation — colour follows the section underneath (see client/modules/nav.ts). */
-export const navbar = (chapter: ChapterKey) => html`<header class="nav" data-nav data-tone="ink">
+/** Where "Start a project" goes: the in-page form on the home page, the contact page elsewhere. */
+export const contactHref = (home: boolean): string => (home ? "#contact" : "/contact/");
+
+const isCurrent = (href: string, path: string) => !href.includes("#") && href !== "/" && path.startsWith(href);
+
+/** Fixed navigation — colour follows the section underneath (see client/chrome.ts). */
+export const navbar = (chapterLabel: string, path: string) => html`<header class="nav" data-nav data-tone="ink">
   <a class="nav__brand mono" href="/#top" aria-label="${esc(site.name)} — home" data-cursor="go">
     <span>Rudra</span><span>InfoTech Lab</span>
   </a>
-  ${status(site.availability, "nav__status")}
-  <p class="nav__chapter mono" aria-hidden="true"><span class="nav__chapter-i" data-nav-chapter>${esc(chapterText(chapter))}</span></p>
+  ${status(availabilityText(), "nav__status")}
+  <p class="nav__chapter mono" aria-hidden="true"><span class="nav__chapter-i" data-nav-chapter>${esc(chapterLabel)}</span></p>
   <nav class="nav__links" aria-label="Primary">
     <ul role="list">
-      ${navPrimary.map((n) => html`<li><a class="nav__link mono" href="${n.href}">${esc(n.label)}</a></li>`)}
+      ${navPrimary.map((n) => html`<li><a class="nav__link mono" href="${n.href}" ${isCurrent(n.href, path) ? 'aria-current="page"' : ""}>${esc(n.label)}</a></li>`)}
     </ul>
   </nav>
   <button class="nav__menu mono" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
@@ -20,16 +27,16 @@ export const navbar = (chapter: ChapterKey) => html`<header class="nav" data-nav
   </button>
 </header>`;
 
-export const menu = () => {
+export const menu = (home: boolean, path: string) => {
   const socials = socialLinks();
-  const { email, phone } = site.contact;
+  const { email, phone, whatsapp, whatsapp_message } = D().contact;
   return html`<div class="menu" id="menu" data-menu data-theme="ink" inert>
   ${gridLines("gridlines menu__grid")}
   <nav class="menu__nav" aria-label="Menu">
     <ol class="menu__list" role="list">
       ${nav.map(
         (n, i) => html`<li class="menu__item" style="--i:${i}">
-          <a class="menu__link" href="${n.href}" data-menu-link>
+          <a class="menu__link" href="${n.href}" data-menu-link ${isCurrent(n.href, path) ? 'aria-current="page"' : ""}>
             <span class="menu__n mono">${nn(i + 1)}</span>
             <span class="menu__t display"><span class="menu__t-i">${esc(n.label)}</span></span>
             ${arrow("ne", "menu__a")}
@@ -39,14 +46,15 @@ export const menu = () => {
     </ol>
   </nav>
   <div class="menu__foot">
-    ${status(site.availability)}
+    ${status(availabilityText())}
     <div class="menu__meta mono">
       ${email ? html`<a href="mailto:${esc(email)}">${esc(email)}</a>` : ""}
-      ${phone ? html`<a href="tel:${esc(phone.replace(/\s/g, ""))}">${esc(phone)}</a>` : ""}
-      ${socials.map((s) => html`<a href="${esc(s.href)}" target="_blank" rel="noopener noreferrer">${esc(s.label)}</a>`)}
+      ${phone ? html`<a href="tel:${esc(phone.replace(/[^\d+]/g, ""))}">${esc(phone)}</a>` : ""}
+      ${whatsapp ? html`<a href="${esc(waLink(whatsapp, whatsapp_message))}" ${EXT}>WhatsApp ${esc(prettyPhone(whatsapp))}</a>` : ""}
+      ${socials.map((s) => html`<a href="${esc(s.href)}" ${EXT}>${esc(s.label)}</a>`)}
       <span>Design / Development</span>
     </div>
-    ${cta("Start a project", "/#contact", "orange", "ne", "data-menu-link")}
+    ${cta("Start a project", contactHref(home), "orange", "ne", "data-menu-link")}
   </div>
 </div>`;
 };

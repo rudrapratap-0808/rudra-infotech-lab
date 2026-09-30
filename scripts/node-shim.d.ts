@@ -1,6 +1,7 @@
 /**
- * Minimal Node.js ambient types for the build scripts.
- * (Keeps the project dependency-free — swap for `@types/node` any time.)
+ * Minimal Node.js ambient types for the build scripts (web-standard globals such as
+ * fetch, URL, console and timers come from the DOM lib in tsconfig.json).
+ * Keeps the project dependency-free — swap for `@types/node` any time.
  */
 declare const process: {
   env: Record<string, string | undefined>;
@@ -9,48 +10,41 @@ declare const process: {
   exit(code?: number): never;
   cwd(): string;
   platform: string;
+  pid: number;
+  on(ev: string, fn: (...a: any[]) => void): void;
+  stdout: { write(s: string): void };
 };
-declare const console: {
-  log(...a: unknown[]): void;
-  warn(...a: unknown[]): void;
-  error(...a: unknown[]): void;
-};
-declare function setTimeout(cb: (...a: unknown[]) => void, ms?: number): unknown;
-declare function fetch(
-  url: string,
-  init?: { redirect?: string; method?: string }
-): Promise<{ ok: boolean; status: number; json(): Promise<any>; text(): Promise<string> }>;
-declare class WebSocket {
-  constructor(url: string);
-  send(data: string): void;
-  close(): void;
-  onopen: (() => void) | null;
-  onerror: ((e: unknown) => void) | null;
-  onmessage: ((e: { data: string }) => void) | null;
-}
-interface ImportMeta {
-  url: string;
-}
-declare class URL {
-  constructor(url: string, base?: string);
-  pathname: string;
-  href: string;
+interface NodeBuffer extends Uint8Array {
+  toString(enc?: string): string;
 }
 declare const Buffer: {
-  from(data: string | Uint8Array, enc?: string): Uint8Array & { toString(enc?: string): string };
+  from(data: string | Uint8Array | ArrayBuffer, enc?: string): NodeBuffer;
   byteLength(s: string): number;
+  concat(list: Uint8Array[]): NodeBuffer;
+  alloc(n: number): NodeBuffer;
+  isBuffer(v: unknown): boolean;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "node:fs/promises" {
   export const readFile: (p: string, enc?: any) => Promise<any>;
   export const writeFile: (p: string, data: any) => Promise<void>;
+  export const appendFile: (p: string, data: any) => Promise<void>;
   export const mkdir: (p: string, o?: any) => Promise<void>;
   export const readdir: (p: string, o?: any) => Promise<any[]>;
   export const cp: (a: string, b: string, o?: any) => Promise<void>;
+  export const copyFile: (a: string, b: string) => Promise<void>;
+  export const rename: (a: string, b: string) => Promise<void>;
   export const rm: (p: string, o?: any) => Promise<void>;
-  export const stat: (p: string) => Promise<{ isDirectory(): boolean; isFile(): boolean; size: number }>;
+  export const unlink: (p: string) => Promise<void>;
+  export const stat: (p: string) => Promise<{ isDirectory(): boolean; isFile(): boolean; size: number; mtimeMs: number }>;
   export const access: (p: string) => Promise<void>;
+}
+declare module "node:fs" {
+  export const existsSync: (p: string) => boolean;
+  export const mkdirSync: (p: string, o?: any) => void;
+  export const writeFileSync: (p: string, d: any) => void;
+  export const readFileSync: (p: string, enc?: any) => any;
 }
 declare module "node:path" {
   export const join: (...p: string[]) => string;
@@ -71,11 +65,23 @@ declare module "node:url" {
 }
 declare module "node:child_process" {
   export const spawnSync: (cmd: string, args: string[], o?: any) => { status: number | null; stdout: any; stderr: any };
-  export const spawn: (cmd: string, args: string[], o?: any) => { kill(sig?: string): void; on(ev: string, fn: (...a: any[]) => void): void };
+  export const spawn: (
+    cmd: string,
+    args: string[],
+    o?: any
+  ) => { pid?: number; kill(sig?: string): void; on(ev: string, fn: (...a: any[]) => void): void; stdout: any; stderr: any };
 }
 declare module "node:crypto" {
-  export const createHash: (alg: string) => { update(d: any): any; digest(enc: string): string };
+  export const createHash: (alg: string) => { update(d: any): any; digest(enc?: string): any };
+  export const createHmac: (alg: string, key: any) => { update(d: any): any; digest(enc?: string): any };
+  export const randomBytes: (n: number) => NodeBuffer;
+  export const randomUUID: () => string;
+  export const scryptSync: (pw: string, salt: string, len: number) => NodeBuffer;
+  export const timingSafeEqual: (a: Uint8Array, b: Uint8Array) => boolean;
 }
 declare module "node:zlib" {
   export const gzipSync: (d: any) => { length: number };
+}
+declare module "node:net" {
+  export const createServer: (...a: any[]) => any;
 }

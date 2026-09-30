@@ -31,7 +31,12 @@ async function main() {
     if (m.method === "Runtime.exceptionThrown") issues.push(`JS exception: ${m.params.exceptionDetails?.exception?.description?.split("\n")[0]}`);
     if (m.method === "Runtime.consoleAPICalled" && ["error", "warning"].includes(m.params.type))
       issues.push(`console.${m.params.type}: ${m.params.args.map((a: Json) => a.value ?? a.description).join(" ").slice(0, 200)}`);
-    if (m.method === "Network.responseReceived" && m.params.response.status >= 400 && !m.params.response.url.includes("does-not-exist"))
+    if (
+      m.method === "Network.responseReceived" &&
+      m.params.response.status >= 400 &&
+      !m.params.response.url.includes("does-not-exist") &&
+      !(m.params.response.status === 503 && m.params.response.url.endsWith("/api/enquiry"))
+    )
       issues.push(`HTTP ${m.params.response.status}: ${m.params.response.url}`);
   });
   await page.send("Network.enable");
@@ -70,6 +75,7 @@ async function main() {
     const ov = await page.eval(`(() => ({ sw: document.documentElement.scrollWidth, w: document.documentElement.clientWidth }))()`);
     if (ov.sw > ov.w) issues.push(`[${vp.name}] horizontal overflow ${ov.sw} > ${ov.w}`);
     log.push(`[${vp.name}] page height ${H}px (${(H / vp.height).toFixed(1)} viewports), ${n} frames`);
+    console.log(`  QA viewport ${vp.name}: ${n} frames`);
   }
 
   /* Interaction checks (mobile) */
@@ -92,8 +98,9 @@ async function main() {
     const errors = [...f.querySelectorAll("[data-error-for]")].filter(e => e.textContent).map(e => e.dataset.errorFor);
     const set = (n, v) => { const el = f.querySelector('[name="' + n + '"]'); el.value = v; el.dispatchEvent(new Event("input", { bubbles: true })); };
     set("name", "Test Person"); set("email", "test@example.com"); set("details", "We need a fast business website with an enquiry form.");
-    f.querySelector('input[name="type"]').click();
+    f.querySelector('input[name="service"]').click();
     await new Promise(r => setTimeout(r, 3200));
+    window.open = () => null; // don't open an external WhatsApp tab during QA
     f.requestSubmit(); await new Promise(r => setTimeout(r, 700));
     return { errors, after: [...f.querySelectorAll("[data-error-for]")].filter(e => e.textContent).length, status: f.querySelector("[data-status]").textContent, success: !document.querySelector("[data-success]").hidden };
   })()`);
@@ -106,7 +113,18 @@ async function main() {
   /* Audits on every page (desktop) */
   await page.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await page.send("Emulation.setTouchEmulationEnabled", { enabled: false });
-  for (const path of ["/", "/privacy/", "/does-not-exist"]) {
+  for (const path of [
+    "/",
+    "/projects/",
+    "/projects/dotaanke-store/",
+    "/projects/the-lord-cafe/",
+    "/apps/",
+    "/services/",
+    "/services/android-apps/",
+    "/contact/",
+    "/privacy/",
+    "/does-not-exist",
+  ]) {
     await load(base + path);
     const a = await page.eval(`(async () => {
       const out = [];
@@ -127,6 +145,7 @@ async function main() {
       return { out, title: document.title, desc: document.querySelector('meta[name=description]')?.content?.length };
     })()`);
     log.push(`[${path}] "${a.title}" (desc ${a.desc} chars)`);
+    console.log(`  QA page ${path}`);
     a.out.forEach((o: string) => issues.push(`[${path}] ${o}`));
     if (path !== "/") await shot(`page${path.replace(/\//g, "_")}.jpg`);
   }

@@ -1,5 +1,5 @@
 /**
- * Generates the Open Graph image and PNG app icons into /public using headless Chrome.
+ * Generates the Open Graph image (public/og-v*.png) and PNG app icons into /public using headless Chrome.
  *   npm run og
  * Uses the self-hosted brand fonts in public/fonts.
  */
@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { PUBLIC, ROOT } from "./paths.js";
 import { findChrome, screenshot } from "./chrome.js";
+import { OG_IMAGE } from "../src/data/seed.js";
 
 const TMP = join(ROOT, ".build/og");
 
@@ -35,7 +36,7 @@ body{position:relative;font-family:I,sans-serif}
 <div class="g">${"<i></i>".repeat(12)}</div><div class="rect"></div>
 <div class="m"><span>/ Digital foundry</span><span>India / Worldwide</span><span><i class="dot"></i>Available for projects</span></div>
 <div class="d r">Rudra</div><div class="s">Impossible to ignore.</div><div class="d i">InfoTech</div><div class="d l">Lab</div>
-<div class="c">We build websites that make businesses impossible to ignore.</div>
+<div class="c">Websites &amp; Android apps that make businesses impossible to ignore.</div>
 </body></html>`;
 
 const iconHtml = (svg: string, size: number) => `<!doctype html><html><head><style>
@@ -50,8 +51,9 @@ async function main() {
 
   const ogFile = join(TMP, "og.html");
   await writeFile(ogFile, ogHtml());
-  screenshot(chrome, pathToFileURL(ogFile).href, join(PUBLIC, "og.png"), 1200, 630, ["--virtual-time-budget=4000"]);
-  console.log("  ✓ public/og.png");
+  // Versioned file name (see OG_IMAGE) so crawlers that cached an older preview fetch the new one.
+  screenshot(chrome, pathToFileURL(ogFile).href, join(PUBLIC, OG_IMAGE), 1200, 630, ["--virtual-time-budget=4000"]);
+  console.log(`  ✓ public${OG_IMAGE}`);
 
   for (const [name, size] of [
     ["favicon-32.png", 32],

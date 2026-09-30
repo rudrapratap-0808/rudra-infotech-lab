@@ -1,4 +1,4 @@
-import { site } from "../data/site.js";
+import { D, reelProjects } from "../data/store.js";
 import { chars, esc, html } from "../lib/html.js";
 import { arrow } from "./symbols.js";
 import { chapterAttr, cta, gridLines, tlink } from "./ui.js";
@@ -43,30 +43,36 @@ const planes = () => html`<button class="planes" type="button" data-planes data-
   </span>
 </button>`;
 
-export const hero = () => html`<section class="hero" id="top" data-theme="paper" ${chapterAttr("home")} aria-labelledby="hero-title">
+const AVAIL_SHORT = { available: "Available", limited: "Limited", closed: "Booked" } as const;
+
+export const hero = () => {
+  const { content, contact } = D();
+  const h = content.hero;
+  const meta = [h.meta_1, h.meta_2, `${AVAIL_SHORT[contact.availability] ?? "Available"} / ${new Date().getFullYear()}`].filter(Boolean);
+  return html`<section class="hero" id="top" data-theme="paper" ${chapterAttr("home")} aria-labelledby="hero-title">
   <div class="hero__stage" data-hero>
     ${gridLines("gridlines hero__grid")}
     <span class="hero__rect" aria-hidden="true" data-hero-rect></span>
 
     <ul class="hero__meta mono" role="list" aria-label="Studio details">
-      ${site.heroMeta.map((m) => html`<li class="hero__meta-i" data-hero-meta><span>${esc(m)}</span></li>`)}
+      ${meta.map((m) => html`<li class="hero__meta-i" data-hero-meta><span>${esc(m)}</span></li>`)}
       <li class="hero__xy" aria-hidden="true" data-hero-meta><span data-hero-xy>X: 0000 Y: 0000</span></li>
     </ul>
 
     <h1 class="hero__title" id="hero-title">
-      <span class="sr-only">Rudra InfoTech Lab — we build websites that make businesses impossible to ignore.</span>
+      <span class="sr-only">Rudra InfoTech Lab — ${esc(h.heading)}</span>
       <span class="hero__w hero__w--rudra display" aria-hidden="true" data-hero-word="rudra">${chars("RUDRA")}</span>
-      <span class="hero__serif serif" aria-hidden="true" data-hero-serif><span class="ln"><span class="ln__i">Impossible to ignore.</span></span></span>
+      <span class="hero__serif serif" aria-hidden="true" data-hero-serif><span class="ln"><span class="ln__i">${esc(h.serif)}</span></span></span>
       <span class="hero__w hero__w--infotech display" aria-hidden="true" data-hero-word="infotech">${chars("INFOTECH")}</span>
       <span class="hero__w hero__w--lab display" aria-hidden="true" data-hero-word="lab">${chars("LAB")}</span>
     </h1>
 
     <div class="hero__copy" data-hero-copy>
-      <p class="hero__claim">We build websites that make businesses impossible to ignore.</p>
-      <p class="hero__lede">Modern, fast, responsive digital experiences — designed and developed for businesses, brands, startups and entrepreneurs.</p>
+      <p class="hero__claim">${esc(h.heading)}</p>
+      <p class="hero__lede">${esc(h.description)}</p>
       <div class="hero__ctas">
-        ${cta("Start a project", "#contact", "ink", "ne")}
-        ${tlink("View our work", "#work", "s")}
+        ${cta(h.primary_cta, "#contact", "ink", "ne")}
+        ${tlink(h.secondary_cta, reelProjects().length ? "#work" : "/projects/", "s")}
       </div>
     </div>
 
@@ -77,3 +83,4 @@ export const hero = () => html`<section class="hero" id="top" data-theme="paper"
     </p>
   </div>
 </section>`;
+};
