@@ -9,7 +9,7 @@ import { initForm } from "./form.js";
 import { intro } from "./intro.js";
 import { initScenes } from "./scenes.js";
 import { initLanes, initPlanes, initViz, initWhy } from "./widgets.js";
-import { initFilters, initWhatsApp } from "./whatsapp.js";
+import { initFilters } from "./whatsapp.js";
 
 const w = window as unknown as { __ritl?: Record<string, unknown> };
 w.__ritl = { booted: true };
@@ -42,7 +42,6 @@ safe("why", initWhy);
 safe("lanes", initLanes);
 safe("viz", initViz);
 safe("footer", initFooter);
-safe("whatsapp", initWhatsApp);
 safe("filters", initFilters);
 
 if (fx) {

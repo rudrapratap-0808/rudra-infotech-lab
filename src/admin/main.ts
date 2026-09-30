@@ -3,7 +3,7 @@
  * Every read and write goes to Supabase with the signed-in user's JWT; row-level
  * security in the database decides what each role may do.
  */
-import { auth, configured, db } from "./lib/api.js";
+import { auth, configured, db, hydrateRuntimeConfig } from "./lib/api.js";
 import { h } from "./lib/dom.js";
 import { addRoute, match, navigate, onNavigate, rememberPath, startRouter, type Route } from "./lib/router.js";
 import { can, startPolling, state, stopPolling, type Profile } from "./lib/state.js";
@@ -145,8 +145,13 @@ auth.onChange((s) => {
   }
 });
 
-onNavigate(render);
-startRouter();
-const start = location.pathname.endsWith("/") ? location.pathname : `${location.pathname}/`;
-if (start !== location.pathname) history.replaceState(null, "", start + location.search + location.hash);
-render(start, new URLSearchParams(location.search));
+async function boot(): Promise<void> {
+  await hydrateRuntimeConfig();
+  onNavigate(render);
+  startRouter();
+  const start = location.pathname.endsWith("/") ? location.pathname : `${location.pathname}/`;
+  if (start !== location.pathname) history.replaceState(null, "", start + location.search + location.hash);
+  await render(start, new URLSearchParams(location.search));
+}
+
+void boot();
