@@ -26,13 +26,6 @@
 .foot__nav a{overflow-wrap:anywhere}
 .form__again{display:flex;flex-wrap:wrap;gap:14px}
 
-/* ── Floating WhatsApp ────────────────────────────────────── */
-.wa-float{position:fixed;right:max(var(--m),env(safe-area-inset-right));bottom:max(var(--m),env(safe-area-inset-bottom));z-index:95;display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 18px 0 16px;background:var(--acid);color:var(--ink);box-shadow:0 0 0 1px var(--ink);transition:transform .5s var(--e-out),opacity .3s,background-color .25s,color .25s}
-.wa-float__i{width:24px;height:24px;flex:none}
-.wa-float__t{font-weight:500}
-.wa-float:hover,.wa-float:focus-visible{background:var(--ink);color:var(--acid)}
-.wa-float.is-hidden,.intro .wa-float,.menu.is-open~.wa-float{transform:translateY(calc(100% + 48px));opacity:0;pointer-events:none}
-@media (max-width:600px){.wa-float{height:52px;padding:0 14px}.wa-float__t{display:none}}
 
 /* ── Apps chapter + /apps/ ────────────────────────────────── */
 .apps{position:relative;padding:14vh 0 12vh;overflow:clip}

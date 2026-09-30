@@ -145,7 +145,6 @@ function renderPages(assets: Assets): Page[] {
         body: projectPage(p),
         jsonLd: projectLdAll(p),
         chapter: work,
-        wa: `Hi Rudra InfoTech Lab, I saw the ${p.name} project and I’m interested in discussing something similar.`,
       },
       !m.canonical || m.canonical === abs(projectPath(p)),
       p.updated_at?.slice(0, 10)
@@ -155,9 +154,9 @@ function renderPages(assets: Assets): Page[] {
   const svc = `/ ${chapters.services.n} ${chapters.services.label}`;
   if (services().length) add({ ...servicesIndexMeta(), path: "/services/", body: servicesIndex(), jsonLd: servicesIndexLd(), chapter: svc });
   for (const s of services()) {
-    add({ ...serviceMeta(s), path: servicePath(s), body: servicePage(s), jsonLd: serviceLdAll(s), chapter: svc, wa: `Hi Rudra InfoTech Lab, I’m interested in your ${s.title} service.` });
+    add({ ...serviceMeta(s), path: servicePath(s), body: servicePage(s), jsonLd: serviceLdAll(s), chapter: svc });
   }
-  add({ ...contactMeta(), path: "/contact/", body: contactPage(), jsonLd: contactLd(), chapter: chapterText("contact"), wa: false });
+  add({ ...contactMeta(), path: "/contact/", body: contactPage(), jsonLd: contactLd(), chapter: chapterText("contact") });
   add({ ...privacyMeta(), path: "/privacy/", body: privacy(), chapter: "/ — Privacy" });
   add({ ...notFoundMeta(), path: "/404", body: notFound(), noindex: true, chapter: "/ 404 Not found" }, false);
   return pages;

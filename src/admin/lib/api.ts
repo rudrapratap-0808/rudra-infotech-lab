@@ -11,6 +11,26 @@ export interface AdminConfig {
 export const CFG: AdminConfig = (window as unknown as { __RITL_ADMIN__: AdminConfig }).__RITL_ADMIN__ ?? { supabaseUrl: "", supabaseKey: "", siteUrl: "", siteName: "Rudra InfoTech Lab" };
 export const configured = (): boolean => Boolean(CFG.supabaseUrl && CFG.supabaseKey);
 
+/**
+ * Vercel environment variables normally reach the static build. This runtime fallback
+ * also covers variables added after a build or environments where build-time exposure
+ * is disabled. The endpoint can return only the browser-safe URL + public key.
+ */
+export async function hydrateRuntimeConfig(): Promise<boolean> {
+  if (configured()) return true;
+  try {
+    const res = await fetch("/api/public-config", { headers: { Accept: "application/json" }, cache: "no-store" });
+    if (!res.ok) return false;
+    const body = (await res.json()) as Partial<AdminConfig> & { configured?: boolean };
+    const key = String(body.supabaseKey ?? "").trim();
+    const url = String(body.supabaseUrl ?? "").trim().replace(/\/+$/, "");
+    if (body.configured && url && key && !key.startsWith("sb_secret_")) Object.assign(CFG, { supabaseUrl: url, supabaseKey: key });
+  } catch {
+    /* The login view gives the user the configuration instructions. */
+  }
+  return configured();
+}
+
 export interface User {
   id: string;
   email: string;

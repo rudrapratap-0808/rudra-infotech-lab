@@ -1,25 +1,4 @@
-/**
- * Floating WhatsApp button: steps aside while the contact form, another WhatsApp CTA
- * or the footer is on screen (so it never covers the content it duplicates).
- */
-import { $, $$ } from "./core.js";
-
-export function initWhatsApp(): void {
-  const btn = $("[data-wa-float]");
-  if (!btn || !("IntersectionObserver" in window)) return;
-  const targets = [$("#contact"), $(".foot__bar"), ...$$("[data-wa]")].filter(Boolean) as HTMLElement[];
-  const visible = new Set<Element>();
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) e.isIntersecting ? visible.add(e.target) : visible.delete(e.target);
-      const hide = visible.size > 0;
-      btn.classList.toggle("is-hidden", hide);
-      btn.inert = hide;
-    },
-    { rootMargin: "0px 0px -8% 0px", threshold: 0 }
-  );
-  targets.forEach((t) => io.observe(t));
-}
+import { $ } from "./core.js";
 
 /** /projects/ type filter chips (the full list stays visible without JS). */
 export function initFilters(): void {

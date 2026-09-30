@@ -1,11 +1,9 @@
-import { waLink } from "../data/model.js";
 import { OG_IMAGE } from "../data/seed.js";
 import { site } from "../data/site.js";
 import { abs, D, img } from "../data/store.js";
-import { esc, EXT, html, safeUrl } from "../lib/html.js";
+import { esc, html, safeUrl } from "../lib/html.js";
 import { footer } from "./footer.js";
 import { cursor, menu, navbar, preloader } from "./nav.js";
-import { whatsappIcon } from "./symbols.js";
 
 export interface Assets {
   css: string;
@@ -39,8 +37,6 @@ export interface PageOptions {
   ogTitle?: string;
   ogDescription?: string;
   ogType?: "website" | "article";
-  /** Floating WhatsApp button message; `false` hides the button. */
-  wa?: string | false;
 }
 
 /** Fonts needed for the first screen (the rest load on demand via @font-face). */
@@ -59,17 +55,8 @@ const BOOT = `(function(d,w){var h=d.documentElement,c=h.classList;c.remove('no-
 
 const iconType = (u: string) => (/\.svg(\?|$)/i.test(u) ? "image/svg+xml" : /\.png(\?|$)/i.test(u) ? "image/png" : /\.ico(\?|$)/i.test(u) ? "image/x-icon" : "");
 
-/** Floating WhatsApp button (hidden by client/whatsapp.ts while the contact form is on screen). */
-const waFloat = (message: string) => {
-  const n = D().contact.whatsapp;
-  if (!n) return "";
-  return html`<a class="wa-float" href="${esc(waLink(n, message))}" ${EXT} data-wa-float data-cursor="go" aria-label="Chat with Rudra InfoTech Lab on WhatsApp (opens WhatsApp)">
-  ${whatsappIcon("wa-float__i")}<span class="wa-float__t mono" aria-hidden="true">Chat</span>
-</a>`;
-};
-
 export const layout = (o: PageOptions): string => {
-  const { seo, contact } = D();
+  const { seo } = D();
   const home = o.path === "/";
   const canonical = safeUrl(o.canonical) || abs(o.path);
   const imgPath = safeUrl(o.image) || safeUrl(seo.og_image) || OG_IMAGE;
@@ -130,7 +117,6 @@ ${menu(home, o.path)}
 ${o.body}
 </main>
 ${footer(home)}
-${o.wa === false ? "" : waFloat(o.wa || contact.whatsapp_message)}
 ${cursor()}
 <div class="grain" aria-hidden="true"></div>
 ${o.assets.vendor.map((s) => `<script defer src="${s}"></script>`)}
