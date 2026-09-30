@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
+    "target": "ES2022",
+    "module": "ES2022",
     "moduleResolution": "Bundler",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [],
     "strict": true,
     "noUnusedLocals": true,
@@ -12,5 +12,5 @@
     "rootDir": "src/client",
     "outDir": ".build/client"
   },
-  "include": ["src/client/**/*.ts"]
+  "include": ["src/client/**/*.ts", "vendor/gsap/types/index.d.ts"]
 }

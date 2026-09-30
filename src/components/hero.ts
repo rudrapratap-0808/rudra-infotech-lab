@@ -1,67 +1,79 @@
 import { site } from "../data/site.js";
-import { esc, html, splitWords } from "../lib/html.js";
-import { icon } from "./icons.js";
-import { button } from "./ui.js";
+import { chars, esc, html } from "../lib/html.js";
+import { arrow } from "./symbols.js";
+import { chapterAttr, cta, gridLines, tlink } from "./ui.js";
 
-const TITLE = "We build websites that make businesses *impossible* to ignore.";
+/**
+ * Five interface planes — DESIGN · CODE · MOTION · SYSTEM · LAUNCH.
+ * Exploded in 3D by default; scrolling (or pressing) compresses them into
+ * one finished browser window: many disciplines → one website.
+ */
+const planes = () => html`<button class="planes" type="button" data-planes data-cursor="build" aria-pressed="false"
+  aria-label="Assemble the five disciplines into one website">
+  <span class="planes__stack" data-planes-stack>
+    <span class="plane plane--design" style="--i:0">
+      <span class="plane__tag mono">01 — Design</span>
+      <span class="pd pd--logo"></span><span class="pd pd--img"></span><span class="pd pd--sq"></span>
+      <span class="pd pd--cta"></span><span class="pd pd--card"></span><span class="pd pd--card"></span><span class="pd pd--card"></span>
+    </span>
+    <span class="plane plane--code" style="--i:1">
+      <span class="plane__tag mono">02 — Code</span>
+      <span class="pc pc--nav"></span><span class="pc pc--h1"></span><span class="pc pc--h1b"></span>
+      <span class="pc pc--p"></span><span class="pc pc--p2"></span>
+      <span class="pc__tag pc__tag--a mono">&lt;h1&gt;</span><span class="pc__tag pc__tag--b mono">&lt;/&gt;</span>
+    </span>
+    <span class="plane plane--motion" style="--i:2">
+      <span class="plane__tag mono">03 — Motion</span>
+      <svg class="pm" viewBox="0 0 160 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="pm__path" d="M22 66C44 30 78 86 104 44" vector-effect="non-scaling-stroke"/>
+        <path class="pm__head" d="M98 41l7 2 1-7" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <span class="pm__dot"></span>
+      <svg class="pm__cursor" viewBox="0 0 12 16" aria-hidden="true" focusable="false"><path d="M1 1v12l3.2-3 2.3 5 2-1-2.2-4.8H11Z"/></svg>
+    </span>
+    <span class="plane plane--system" style="--i:3">
+      <span class="plane__tag mono">04 — System</span>
+      <span class="ps">${"<i></i>".repeat(12)}</span>
+      <span class="ps__lbl mono">12 col / 20 gap</span>
+    </span>
+    <span class="plane plane--launch" style="--i:4">
+      <span class="plane__tag mono">05 — Launch</span>
+      <span class="plb mono"><span class="plb__dots"><i></i><i></i><i></i></span><span class="plb__url">your-business.com</span><span class="plb__live"><i></i>Live</span></span>
+    </span>
+  </span>
+</button>`;
 
-/** Lines shown in the decorative "build console". Purely illustrative. */
-const consoleLines: [string, string, string?][] = [
-  ["$", "ritl new your-business"],
-  ["ok", "brief.discovered"],
-  ["ok", "design.system", "tokens, type, grid"],
-  ["ok", "layout.responsive", "360px … 2560px"],
-  ["ok", "assets.optimised", "images, fonts"],
-  ["ok", "a11y.checked", "focus, contrast, motion"],
-  [">", "deploy --production"],
-];
+export const hero = () => html`<section class="hero" id="top" data-theme="paper" ${chapterAttr("home")} aria-labelledby="hero-title">
+  <div class="hero__stage" data-hero>
+    ${gridLines("gridlines hero__grid")}
+    <span class="hero__rect" aria-hidden="true" data-hero-rect></span>
 
-const sym = (s: string) =>
-  s === "ok"
-    ? `<span class="console__sym is-ok">${icon.check}</span>`
-    : s === ">"
-      ? `<span class="console__sym is-go">${icon.arrowRight}</span>`
-      : `<span class="console__sym">${esc(s)}</span>`;
+    <ul class="hero__meta mono" role="list" aria-label="Studio details">
+      ${site.heroMeta.map((m) => html`<li class="hero__meta-i" data-hero-meta><span>${esc(m)}</span></li>`)}
+      <li class="hero__xy" aria-hidden="true" data-hero-meta><span data-hero-xy>X: 0000 Y: 0000</span></li>
+    </ul>
 
-export const hero = () => html`<section class="hero" id="top" aria-labelledby="hero-title" data-hero>
-  <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
-  <div class="hero__glow" aria-hidden="true"></div>
-  <div class="hero__vignette" aria-hidden="true"></div>
-
-  <div class="container hero__inner">
-    ${site.availability ? html`<p class="hero__kicker mono" data-intro style="--d:0"><span class="pulse" aria-hidden="true"></span>${esc(site.availability)}<span class="hero__kicker-sep" aria-hidden="true">/</span><span class="hero__kicker-alt">Web design &amp; development lab</span></p>` : ""}
-
-    <h1 class="hero__title" id="hero-title" data-split data-intro-split aria-label="${esc(TITLE.replace(/\*/g, ""))}">
-      <span aria-hidden="true">${splitWords(TITLE)}</span>
+    <h1 class="hero__title" id="hero-title">
+      <span class="sr-only">Rudra InfoTech Lab — we build websites that make businesses impossible to ignore.</span>
+      <span class="hero__w hero__w--rudra display" aria-hidden="true" data-hero-word="rudra">${chars("RUDRA")}</span>
+      <span class="hero__serif serif" aria-hidden="true" data-hero-serif><span class="ln"><span class="ln__i">Impossible to ignore.</span></span></span>
+      <span class="hero__w hero__w--infotech display" aria-hidden="true" data-hero-word="infotech">${chars("INFOTECH")}</span>
+      <span class="hero__w hero__w--lab display" aria-hidden="true" data-hero-word="lab">${chars("LAB")}</span>
     </h1>
 
-    <div class="hero__foot">
-      <div class="hero__copy">
-        <p class="hero__lede" data-intro style="--d:5">
-          Rudra InfoTech Lab designs and develops modern digital experiences for businesses, brands, startups and entrepreneurs — fast, responsive and built to bring in business.
-        </p>
-        <div class="hero__ctas" data-intro style="--d:6">
-          ${button("Start a Project", "#contact", "ember", "lg")}
-          ${button("View Our Work", "#work", "ghost", "lg")}
-        </div>
-      </div>
-
-      <div class="console" aria-hidden="true" data-intro style="--d:8">
-        <div class="console__bar"><i></i><i></i><i></i><span class="mono">ritl — build</span></div>
-        <ol class="console__body mono">
-          ${consoleLines.map(
-            ([s, t, note], i) =>
-              html`<li style="--l:${i}">${sym(s)}<span>${esc(t)}</span>${note ? html`<span class="console__note">${esc(note)}</span>` : ""}</li>`
-          )}
-          <li class="console__caret" style="--l:${consoleLines.length}"><span class="console__sym">$</span><i></i></li>
-        </ol>
+    <div class="hero__copy" data-hero-copy>
+      <p class="hero__claim">We build websites that make businesses impossible to ignore.</p>
+      <p class="hero__lede">Modern, fast, responsive digital experiences — designed and developed for businesses, brands, startups and entrepreneurs.</p>
+      <div class="hero__ctas">
+        ${cta("Start a project", "#contact", "ink", "ne")}
+        ${tlink("View our work", "#work", "s")}
       </div>
     </div>
-  </div>
 
-  <div class="container hero__meta mono" data-intro style="--d:9">
-    <span>RITL / Web Lab</span>
-    <a href="#philosophy" class="hero__scroll">Scroll ${icon.arrowDown}</a>
-    <span class="hero__meta-end">Design · Develop · Launch</span>
+    ${planes()}
+
+    <p class="hero__foot mono" aria-hidden="true" data-hero-foot>
+      <span>Scroll</span>${arrow("s", "hero__foot-a")}<span>Build sequence</span><span class="hero__foot-f">Frame / 001</span>
+    </p>
   </div>
 </section>`;

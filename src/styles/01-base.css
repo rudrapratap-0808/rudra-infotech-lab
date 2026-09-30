@@ -1,0 +1,113 @@
+/* ============================================================
+   RUDRA — DIGITAL FOUNDRY DESIGN SYSTEM
+   Ink / Paper / Rudra Orange / Electric Blue / Acid / Soft Grey
+   ============================================================ */
+:root{
+  --ink:#0c0c0c;--paper:#f1eee6;--orange:#ff4b18;--blue:#3155ff;--acid:#dfff36;--grey:#b7b5ae;
+  --f-display:"Archivo Black","Arial Black",Impact,sans-serif;
+  --f-sans:"Inter Tight","Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-serif:"Instrument Serif","Times New Roman",Georgia,serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --m:40px;--g:20px;--nav-h:64px;
+  --col:calc((100vw - 2 * var(--m) - 11 * var(--g)) / 12);
+  --t-body:clamp(16px,.9rem + .25vw,19px);
+  --t-sub:clamp(26px,1rem + 2vw,48px);
+  --t-serif:clamp(55px,8vw,150px);
+  --t-mono:11px;
+  --e-io:cubic-bezier(.65,0,.35,1);
+  --e-out:cubic-bezier(.25,1,.5,1);
+  --e-ui:cubic-bezier(.5,1,.89,1);
+}
+@media (max-width:1024px){:root{--m:24px;--g:16px;--nav-h:60px}}
+@media (max-width:600px){:root{--m:16px;--g:12px;--nav-h:56px;--t-mono:10px}}
+
+/* Section themes */
+[data-theme]{background-color:var(--bg);color:var(--fg)}
+[data-theme="paper"]{--bg:var(--paper);--fg:var(--ink);--soft:rgb(12 12 12 / .68);--hair:rgb(12 12 12 / .16);--focus:var(--blue)}
+[data-theme="ink"]{--bg:var(--ink);--fg:var(--paper);--soft:var(--grey);--hair:rgb(241 238 230 / .18);--focus:var(--acid)}
+[data-theme="blue"]{--bg:var(--blue);--fg:var(--paper);--soft:var(--paper);--hair:rgb(241 238 230 / .32);--focus:var(--acid)}
+[data-theme="orange"]{--bg:var(--orange);--fg:var(--ink);--soft:var(--ink);--hair:rgb(12 12 12 / .24);--focus:var(--ink)}
+[data-theme="acid"]{--bg:var(--acid);--fg:var(--ink);--soft:rgb(12 12 12 / .74);--hair:rgb(12 12 12 / .2);--focus:var(--ink)}
+
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0}
+html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:var(--f-sans);font-size:var(--t-body);font-weight:500;line-height:1.42;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
+img,svg{display:block;max-width:100%}
+img{height:auto}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;text-align:inherit;border-radius:0}
+:where(ul[role="list"],ol[role="list"]){list-style:none;padding:0}
+h1,h2,h3,p,dl,dd{font-size:inherit;font-weight:inherit;line-height:inherit}
+em{font-style:normal}
+em.serif,.serif em{font-style:italic}
+q{quotes:"“" "”"}
+::selection{background:var(--acid);color:var(--ink)}
+:focus-visible{outline:2px solid var(--focus,var(--blue));outline-offset:3px}
+main:focus{outline:none}
+[hidden]{display:none!important}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;top:10px;left:10px;z-index:600;padding:12px 16px;background:var(--acid);color:var(--ink);transform:translateY(-200%);transition:transform .3s var(--e-ui)}
+.skip:focus{transform:none}
+
+/* Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-stopped{overflow:clip}
+.lenis.lenis-smooth iframe{pointer-events:none}
+
+/* Type roles */
+.display{font-family:var(--f-display);font-weight:400;line-height:.8;letter-spacing:-.055em;text-transform:uppercase}
+.serif{font-family:var(--f-serif);font-weight:400;line-height:.9;letter-spacing:-.02em}
+.mono{font-family:var(--f-mono);font-size:var(--t-mono);font-weight:400;letter-spacing:.1em;text-transform:uppercase;line-height:1.35}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);padding-inline:var(--m)}
+
+/* Masks */
+.ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.ln__i{display:block}
+.ch{display:inline-block}
+.ch--sp{width:.28em}
+
+/* Section label  "/ 02 ——— SELECTED WORK" */
+.label{display:flex;align-items:center;gap:14px}
+.label__n{display:inline-flex;align-items:center;gap:14px;font-weight:500}
+.label__n::after{content:"";width:34px;height:1px;background:currentColor}
+
+/* Sharp CTA */
+.cta{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;height:56px;padding:0 20px 0 22px;font-family:var(--f-sans);font-weight:700;font-size:14px;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;transition:background-color .3s var(--e-ui),color .3s var(--e-ui)}
+.cta--ink{background:var(--ink);color:var(--paper)}
+.cta--paper{background:var(--paper);color:var(--ink)}
+.cta--orange{background:var(--orange);color:var(--ink)}
+.cta:hover,.cta:focus-visible{background:var(--acid);color:var(--ink)}
+.cta__a{width:16px;height:16px;flex:none;transition:transform .35s var(--e-out)}
+.cta:hover .cta__a{transform:translate(3px,-3px)}
+
+.tlink{display:inline-flex;align-items:center;gap:10px;height:56px;border-bottom:1px solid currentColor;font-weight:500}
+.tlink__a{width:13px;height:13px;transition:transform .35s var(--e-out)}
+.tlink:hover .tlink__a{transform:translateY(3px)}
+.ulink{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .45s var(--e-out);padding-bottom:1px}
+.ulink:hover,.ulink:focus-visible{background-size:100% 1px}
+
+/* Availability */
+.status{display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+.status__dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 1px currentColor}
+
+/* Grid overlay */
+.gridlines{position:absolute;inset:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);padding-inline:var(--m);pointer-events:none}
+.gridlines i{border-inline:1px solid color-mix(in srgb,currentColor 7%,transparent)}
+
+/* Crop marks */
+.crop{position:absolute;inset:0;pointer-events:none}
+.crop i{position:absolute;width:12px;height:12px;border:0 solid currentColor}
+.crop i:nth-child(1){top:-1px;left:-1px;border-width:1px 0 0 1px}
+.crop i:nth-child(2){top:-1px;right:-1px;border-width:1px 1px 0 0}
+.crop i:nth-child(3){bottom:-1px;left:-1px;border-width:0 0 1px 1px}
+.crop i:nth-child(4){bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+
+/* Spec lists (mono key / value) */
+.spec div,.proj__spec div,.wi__spec div,.lab__facts div,.contact__details div{display:grid;grid-template-columns:minmax(80px,auto) 1fr;gap:12px}
+
+/* Grain — barely there, flat colour made tactile */
+.grain{position:fixed;inset:0;z-index:700;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.arw{width:14px;height:14px;flex:none}

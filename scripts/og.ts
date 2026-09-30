@@ -1,7 +1,7 @@
 /**
  * Generates the Open Graph image and PNG app icons into /public using headless Chrome.
  *   npm run og
- * (With internet access the brand fonts load from Google Fonts; offline it falls back to system fonts.)
+ * Uses the self-hosted brand fonts in public/fonts.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -11,31 +11,35 @@ import { findChrome, screenshot } from "./chrome.js";
 
 const TMP = join(ROOT, ".build/og");
 
-const ogHtml = (mark: string) => `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono&family=Instrument+Serif:ital@1&display=block">
-<style>
+const FONT = (f: string) => pathToFileURL(join(PUBLIC, "fonts", f)).href;
+const ogHtml = () => `<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:A;src:url(${FONT("archivo-black-latin-400.woff2")})}
+@font-face{font-family:S;font-style:italic;src:url(${FONT("instrument-serif-latin-400-italic.woff2")})}
+@font-face{font-family:M;src:url(${FONT("ibm-plex-mono-latin-400.woff2")})}
+@font-face{font-family:I;src:url(${FONT("inter-tight-latin-wght.woff2")});font-weight:100 900}
 *{margin:0;box-sizing:border-box}
-html,body{width:1200px;height:630px;background:#07070a;color:#efebe4;font-family:Geist,"Noto Sans",system-ui,sans-serif;overflow:hidden}
-body{position:relative;padding:64px 72px;display:flex;flex-direction:column;justify-content:space-between}
-.grid{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(239,235,228,.16) 1.2px,transparent 1.8px);background-size:30px 30px;-webkit-mask-image:radial-gradient(70% 90% at 75% 40%,#000,transparent 80%)}
-.glow{position:absolute;right:-180px;top:-220px;width:760px;height:760px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,107,44,.3),transparent)}
-.top,.bottom{position:relative;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:16px;font-size:26px;letter-spacing:-.02em;font-weight:500}
-.brand span{color:#8e8c93}
-.brand svg{width:48px;height:48px}
-.mono{font-family:"Geist Mono",ui-monospace,monospace;font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:#8e8c93}
-h1{position:relative;font-size:92px;line-height:.92;letter-spacing:-.055em;font-weight:500;max-width:1000px}
-em{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400;letter-spacing:-.02em;color:#ff7a3d}
-.pill{display:flex;align-items:center;gap:12px;padding:14px 26px;border-radius:999px;background:#ff6b2c;color:#160903;font-size:22px;font-weight:500}
+html,body{width:1200px;height:630px;background:#f1eee6;color:#0c0c0c;overflow:hidden}
+body{position:relative;font-family:I,sans-serif}
+.g{position:absolute;inset:0;display:grid;grid-template-columns:repeat(12,1fr);column-gap:16px;padding:0 36px}
+.g i{border-inline:1px solid rgba(12,12,12,.07)}
+.rect{position:absolute;left:640px;top:352px;right:0;bottom:0;background:#ff4b18}
+.m{position:absolute;top:30px;left:36px;right:36px;display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #0c0c0c;font:500 13px M,monospace;letter-spacing:.1em;text-transform:uppercase}
+.d{position:absolute;font-family:A,sans-serif;text-transform:uppercase;letter-spacing:-.055em;line-height:.8;white-space:nowrap}
+.r{top:78px;left:-20px;font-size:318px}
+.i{top:352px;right:34px;font-size:106px}
+.l{top:470px;left:-18px;font-size:318px}
+.s{position:absolute;top:356px;left:36px;font:italic 64px S,serif;letter-spacing:-.02em}
+.c{position:absolute;left:700px;bottom:34px;font:700 26px I,sans-serif;letter-spacing:-.03em;line-height:1.05;max-width:430px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#dfff36;box-shadow:0 0 0 1px #0c0c0c;margin-right:9px;vertical-align:1px}
 </style></head><body>
-<div class="glow"></div><div class="grid"></div>
-<div class="top"><div class="brand">${mark}<div>Rudra <span>InfoTech</span> Lab</div></div><div class="mono">Web design &amp; development</div></div>
-<h1>We build websites that make businesses <em>impossible</em> to ignore.</h1>
-<div class="bottom"><div class="mono">Business sites · E-commerce · Landing pages · Redesigns</div><div class="pill">Start a Project <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg></div></div>
+<div class="g">${"<i></i>".repeat(12)}</div><div class="rect"></div>
+<div class="m"><span>/ Digital foundry</span><span>India / Worldwide</span><span><i class="dot"></i>Available for projects</span></div>
+<div class="d r">Rudra</div><div class="s">Impossible to ignore.</div><div class="d i">InfoTech</div><div class="d l">Lab</div>
+<div class="c">We build websites that make businesses impossible to ignore.</div>
 </body></html>`;
 
 const iconHtml = (svg: string, size: number) => `<!doctype html><html><head><style>
-*{margin:0}html,body{width:${size}px;height:${size}px;background:#07070a;overflow:hidden}
+*{margin:0}html,body{width:${size}px;height:${size}px;background:#f1eee6;overflow:hidden}
 img{width:${size}px;height:${size}px;display:block}
 </style></head><body><img src="data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}"></body></html>`;
 
@@ -43,10 +47,9 @@ async function main() {
   const chrome = await findChrome();
   await mkdir(TMP, { recursive: true });
   const favicon: string = await readFile(join(PUBLIC, "favicon.svg"), "utf8");
-  const mark = favicon.replace(/<svg[^>]*>/, '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">');
 
   const ogFile = join(TMP, "og.html");
-  await writeFile(ogFile, ogHtml(mark));
+  await writeFile(ogFile, ogHtml());
   screenshot(chrome, pathToFileURL(ogFile).href, join(PUBLIC, "og.png"), 1200, 630, ["--virtual-time-budget=4000"]);
   console.log("  ✓ public/og.png");
 

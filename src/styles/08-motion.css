@@ -1,234 +1,55 @@
 /* ============================================================
-   MOTION
-   Hidden states only apply when JS is running (html.js) and the
-   visitor hasn't asked for reduced motion (html.rm).
+   MOTION LAYOUTS
+   html.stage is set by JS for desktop pinned stages only.
+   Without it (mobile, reduced motion, no JS) every chapter is
+   a complete static layout.
    ============================================================ */
+.stage .phil__bar{visibility:hidden}
+.intro .hero__w{overflow:hidden}
 
-/* Hero intro — pure CSS, starts on first paint */
-.js:not(.rm) [data-intro] {
-  opacity: 0;
-  animation: intro 1.3s var(--ease) forwards;
-  animation-delay: calc(0.15s + var(--d, 0) * 0.1s);
-}
-.js:not(.rm) [data-intro-split] .w > span {
-  transform: translate3d(0, 110%, 0);
-  animation: rise 1.25s var(--ease) forwards;
-  animation-delay: calc(0.2s + var(--i) * 0.055s);
-}
-.js:not(.rm) .console__body li {
-  opacity: 0;
-  animation: fade-in 0.35s ease forwards;
-  animation-delay: calc(1.5s + var(--l) * 0.42s);
-}
+/* Work reel — five frames share one pinned stage */
+.stage .reel__list{position:relative;height:100vh;height:100svh}
+.stage .proj{position:absolute;inset:0;border:0;pointer-events:none}
+.stage .proj.is-current{pointer-events:auto}
+.stage .proj__in{height:100%;min-height:0}
+.stage .reel__rules{inset:0;z-index:4}
+.stage .reel__rules i{position:absolute;top:0;width:1px;height:100%;background:var(--paper);transform-origin:50% 50%}
+.stage .reel__sep{left:0;right:0;bottom:0;height:1px;background:var(--paper);transform:scaleX(0);transform-origin:50% 50%;z-index:4}
 
-/* Scroll reveals */
-.js:not(.rm) [data-reveal] {
-  opacity: 0;
-  transform: translate3d(0, 28px, 0);
-  transition: opacity 1s var(--ease), transform 1.2s var(--ease);
-  transition-delay: calc(var(--d, 0) * 0.08s);
-}
-.js:not(.rm) [data-reveal].is-in {
-  opacity: 1;
-  transform: none;
-}
-.js:not(.rm) [data-split]:not([data-intro-split]) .w > span {
-  transform: translate3d(0, 110%, 0);
-  transition: transform 1.15s var(--ease);
-  transition-delay: calc(var(--i) * 0.045s);
-}
-.js:not(.rm) [data-split].is-in .w > span {
-  transform: none;
-}
+/* Services — one blue stage */
+.stage .svc__stage{height:100vh;height:100svh;overflow:clip}
+.stage .si{position:absolute;inset:0;min-height:0;border-top:0}
+.stage .svc__bar{position:absolute;z-index:3;left:var(--m);right:var(--m);bottom:18px;display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.stage .svc__bar i{height:3px;background:rgb(241 238 230 / .3)}
+.stage .svc__bar i.is-on{background:var(--paper)}
+.stage .svc__wipe{position:absolute;inset:0;z-index:6;display:block;clip-path:circle(0% at 80% 26%)}
 
-/* Statement word scrub */
-.js:not(.rm) .statement__text .sw {
-  opacity: 0.16;
-}
-.js:not(.rm) .statement__text .sw.is-lit {
-  opacity: 1;
-}
+/* Process — the horizontal foundry line */
+.stage .proc__stage{height:100vh;height:100svh;padding:0;overflow:clip}
+.stage .proc__head{position:absolute;z-index:2;top:calc(var(--nav-h) + 8px);left:var(--m);right:var(--m);row-gap:8px}
+.stage .proc__label{grid-column:1/span 4}
+.stage .proc__title{grid-column:5/span 5;font-size:clamp(20px,.8rem + 1vw,34px)}
+.stage .proc__aside{grid-column:10/-1;font-size:14px}
+.stage .proc__status{position:absolute;z-index:2;left:var(--m);top:calc(58vh + 96px);display:flex;gap:26px;font-weight:500}
+.stage .proc__line{position:absolute;z-index:1;display:block;left:0;right:0;top:58vh;height:1.5px;background:var(--ink)}
+.stage .proc__fill{position:absolute;left:0;top:-3px;width:100%;height:7px;background:var(--ink);transform:scaleX(var(--p,0));transform-origin:left}
+.stage .proc__steps{position:absolute;inset:0;margin:0;border:0}
+.stage .st{position:absolute;inset:0;display:block;padding:0;border:0;pointer-events:none}
+.stage .st__node{position:absolute;z-index:3;top:58vh;left:calc(var(--m) + 48px + (100% - 2 * var(--m) - 96px) * var(--i) / 5);width:96px;height:96px;background:var(--orange);transform:translate(-50%,-50%) scale(var(--ns,1));transition:transform .6s var(--e-out),background-color .3s,color .3s}
+.stage .st.is-active .st__node{--ns:1.45;background:var(--ink);color:var(--orange)}
+.stage .st.is-done .st__node{background:var(--ink);color:var(--orange)}
+.stage .st__meta{display:none}
+.stage .st__name{position:absolute;left:var(--m);top:calc(var(--nav-h) + 11vh);margin:0;font-size:min(17.6vw,27vh);clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--e-io)}
+.stage .st__name-i{transform:translateY(30%);transition:transform .8s var(--e-out)}
+.stage .st.is-active .st__name{clip-path:inset(0 0 -10% 0)}
+.stage .st.is-active .st__name-i{transform:none}
+.stage .st__body{position:absolute;left:var(--m);top:calc(58vh + 130px);max-width:34ch;margin:0;opacity:0;transform:translateY(16px);transition:opacity .4s,transform .6s var(--e-out)}
+.stage .st.is-active .st__body{opacity:1;transform:none;transition-delay:.15s}
+.stage .viz{position:absolute;z-index:2;right:var(--m);top:calc(58vh + 80px);width:min(30vw,380px);margin:0}
+.stage .proc__flood{position:absolute;z-index:8;display:block;inset:0;transform:scaleY(0);transform-origin:50% 58%}
 
-/* Process focus */
-.js:not(.rm) .step {
-  opacity: 0.3;
+/* Reduced motion: keep the layouts, drop the movement */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
-.js:not(.rm) .step.is-active {
-  opacity: 1;
-}
-.js:not(.rm) .step.is-done {
-  opacity: 0.55;
-}
-
-/* Service panel entrance */
-.svc__panel.is-entering > * {
-  animation: panel-in 0.8s var(--ease) both;
-}
-.svc__panel.is-entering > :nth-child(2) {
-  animation-delay: 0.03s;
-}
-.svc__panel.is-entering > :nth-child(3) {
-  animation-delay: 0.06s;
-}
-.svc__panel.is-entering > :nth-child(4) {
-  animation-delay: 0.09s;
-}
-.svc__panel.is-entering > :nth-child(5) {
-  animation-delay: 0.12s;
-}
-.svc__panel.is-entering > :nth-child(6) {
-  animation-delay: 0.15s;
-}
-.svc__panel.is-entering .svc-art * {
-  stroke-dasharray: 420;
-  stroke-dashoffset: 420;
-  animation: draw 1.6s var(--ease) forwards;
-}
-
-/* Footer letters rise in */
-.js:not(.rm) .footer__giant:not(.is-in) .footer__letters span {
-  --ty: 40%;
-}
-.js:not(.rm) .footer__giant.is-in .footer__letters span {
-  transition-delay: calc(var(--i) * 0.06s);
-}
-
-/* Page transitions (cross-document View Transitions, progressive) */
-@view-transition {
-  navigation: auto;
-}
-::view-transition-old(root) {
-  animation: vt-out 0.45s var(--ease-io) both;
-}
-::view-transition-new(root) {
-  animation: vt-in 0.7s var(--ease) both;
-}
-
-/* Keyframes */
-@keyframes intro {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes rise {
-  to {
-    transform: none;
-  }
-}
-@keyframes fade-in {
-  to {
-    opacity: 1;
-  }
-}
-@keyframes panel-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes marquee {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  80%,
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-@keyframes ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.55);
-    opacity: 0;
-  }
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-@keyframes nudge {
-  0%,
-  100% {
-    transform: none;
-  }
-  50% {
-    transform: translateY(3px);
-  }
-}
-@keyframes glow-drift {
-  from {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  to {
-    transform: translate(-42%, -56%) scale(1.12);
-  }
-}
-@keyframes vt-out {
-  to {
-    opacity: 0;
-    transform: translate3d(0, -20px, 0);
-  }
-}
-@keyframes vt-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 24px, 0);
-  }
-}
-
-/* ── Reduced motion ───────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-  .tech__marquees {
-    display: none;
-  }
-  .hero__glow,
-  .cta__orb::before,
-  .about__ring {
-    animation: none !important;
-  }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
-}
-.rm .tech__marquees {
-  display: none;
-}
+.rm .lane__track{transform:none!important}

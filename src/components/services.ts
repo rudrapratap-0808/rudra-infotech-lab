@@ -1,60 +1,37 @@
 import { services } from "../data/content.js";
-import { esc, html } from "../lib/html.js";
-import { icon, serviceArt } from "./icons.js";
-import { eyebrow, heading } from "./ui.js";
-
-const n = (i: number) => String(i + 1).padStart(2, "0");
+import { chapters } from "../data/site.js";
+import { esc, html, nn } from "../lib/html.js";
+import { serviceSymbol } from "./symbols.js";
+import { chapterAttr, label } from "./ui.js";
 
 /**
- * Desktop: vertical tabs + sticky detail panel (hover / focus / arrow keys).
- * Mobile: a plain, fully expanded editorial list — no hidden content.
+ * One giant vertical service index on ELECTRIC BLUE.
+ * Static: eight full-height slides. Desktop motion: a pinned stage where each
+ * name compresses upward and the next expands into frame.
  */
-export const servicesSection = () => html`<section class="services section" id="services" aria-labelledby="services-title">
-  <div class="container">
-    <header class="section-head">
-      ${eyebrow("03", "Services")}
-      ${heading("Everything your website needs. *Nothing it doesn't.*", "h2", "h2", "services-title")}
-      <p class="section-head__aside" data-reveal>
-        From the first sketch to ongoing support — one lab, one standard, end to end.
-      </p>
-    </header>
-
-    <div class="svc" data-services>
-      <div class="svc__tabs" role="tablist" aria-orientation="vertical" aria-label="Our services">
-        ${services.map(
-          (s, i) => html`<button class="svc__tab" role="tab" type="button" id="svc-tab-${s.id}" aria-controls="svc-panel-${s.id}" aria-selected="${i === 0 ? "true" : "false"}" tabindex="${i === 0 ? 0 : -1}" data-reveal>
-            <span class="svc__n mono">${n(i)}</span>
-            <span class="svc__name">${esc(s.name)}</span>
-            <span class="svc__arrow">${icon.arrowRight}</span>
-          </button>`
-        )}
-      </div>
-
-      <div class="svc__stage" data-reveal>
-        ${services.map(
-          (s, i) => html`<div class="svc__panel" role="tabpanel" id="svc-panel-${s.id}" aria-labelledby="svc-tab-${s.id}" tabindex="0" ${i === 0 ? "" : "hidden"}>
-            <div class="svc__art">${serviceArt[s.id] ?? ""}</div>
-            <p class="svc__big mono" aria-hidden="true">${n(i)}<span>/${n(services.length - 1)}</span></p>
-            <h3 class="svc__title">${esc(s.name)}</h3>
-            <p class="svc__line">${esc(s.line)}</p>
-            <p class="svc__body">${esc(s.body)}</p>
-            <ul class="svc__points mono" role="list">${s.points.map((p) => html`<li>${esc(p)}</li>`)}</ul>
-          </div>`
-        )}
-      </div>
-    </div>
-
-    <ol class="svc-list" role="list">
+export const servicesSection = () => html`<section class="svc" id="services" data-theme="blue" ${chapterAttr("services")} aria-labelledby="svc-title">
+  <header class="svc__head grid">
+    ${label(chapters.services.n, chapters.services.label, "svc__label")}
+    <h2 class="svc__title" id="svc-title">Everything your website needs. <em class="serif">Nothing it doesn't.</em></h2>
+    <p class="svc__aside">From the first sketch to ongoing support — one lab, one standard, end to end.</p>
+    <p class="svc__count mono" aria-hidden="true">${nn(services.length)} disciplines</p>
+  </header>
+  <div class="svc__stage" data-svc>
+    <ol class="svc__list" role="list">
       ${services.map(
-        (s, i) => html`<li class="svc-list__item" data-reveal>
-          <span class="svc__n mono">${n(i)}</span>
-          <div>
-            <h3 class="svc-list__name">${esc(s.name)}</h3>
-            <p class="svc-list__line">${esc(s.line)}</p>
-            <p class="svc-list__body">${esc(s.body)}</p>
+        (s, i) => html`<li class="si si--${s.id}" data-svc-item style="--i:${i}">
+          <p class="si__n mono"><span>S / ${nn(i + 1)}</span><span class="si__of">${nn(services.length)}</span></p>
+          <span class="si__sym" aria-hidden="true">${serviceSymbol[s.id] ?? ""}</span>
+          <h3 class="si__name display">${s.display.map((l) => html`<span class="ln"><span class="ln__i">${esc(l)}</span></span>`).join(" ")}</h3>
+          <div class="si__copy">
+            <p class="si__line">${esc(s.line)}</p>
+            <p class="si__body">${esc(s.body)}</p>
+            <ul class="si__points mono" role="list">${s.points.map((p) => html`<li>${esc(p)}</li>`)}</ul>
           </div>
         </li>`
       )}
     </ol>
+    <span class="svc__bar" aria-hidden="true">${services.map(() => "<i></i>").join("")}</span>
+    <span class="svc__wipe" data-theme="paper" aria-hidden="true" data-svc-wipe></span>
   </div>
 </section>`;

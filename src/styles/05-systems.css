@@ -1,0 +1,142 @@
+/* ============================================================
+   05 SERVICES — ELECTRIC BLUE · giant vertical index
+   ============================================================ */
+.svc{position:relative}
+.svc__head{padding-top:16vh;padding-bottom:10vh;row-gap:26px;align-items:end}
+.svc__label{grid-column:1/span 6}
+.svc__count{grid-column:10/-1;justify-self:end}
+.svc__title{grid-column:1/span 8;font-size:var(--t-sub);font-weight:700;line-height:1;letter-spacing:-.035em;max-width:19ch}
+.svc__title em{font-size:1.18em;letter-spacing:-.01em;font-weight:400}
+.svc__aside{grid-column:9/span 4;max-width:32ch}
+.svc__stage{position:relative}
+.si{position:relative;min-height:92vh;min-height:92svh;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:auto 1fr auto auto;column-gap:var(--g);padding:calc(var(--nav-h) + 12px) var(--m) 5vh;border-top:1px solid var(--hair)}
+.si__n{grid-column:1/span 4;grid-row:1;display:flex;gap:16px;font-weight:500}
+.si__of{opacity:.7}
+.si__sym{grid-column:8/-1;grid-row:1/span 2;justify-self:end;align-self:start;width:min(23vw,36vh);margin-top:1vh}
+.si__name{grid-column:1/-1;grid-row:3;font-size:11.7vw;margin-left:-.06em}
+.si__name .ln{padding-bottom:.02em;margin-bottom:-.02em}
+.si__name .ln__i{transform-origin:50% 0}
+.si__copy{grid-column:1/-1;grid-row:4;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);row-gap:14px;margin-top:3vh;padding-top:16px;border-top:1px solid var(--paper)}
+.si__line{grid-column:1/span 4;font-size:clamp(20px,1rem + .8vw,30px);font-weight:700;line-height:1.05;letter-spacing:-.025em}
+.si__body{grid-column:5/span 4;max-width:40ch}
+.si__points{grid-column:10/-1;justify-self:end;display:grid;gap:6px;text-align:right}
+.svc__bar,.svc__wipe{display:none}
+/* Service symbols */
+.sym{width:100%;height:auto;overflow:visible;stroke-width:2;stroke-linecap:square}
+.sym .d{stroke-dasharray:1;stroke-dashoffset:var(--draw,0);stroke-linecap:butt}
+.sym .dash{stroke-dasharray:.04 .03}
+.sym .acid{stroke:var(--acid)}
+.sym .f{stroke:none}
+.sym .f--acid{fill:var(--acid)}
+.sym .f--paper{fill:var(--paper)}
+.sym__count{font-family:var(--f-display);font-size:34px;letter-spacing:-.05em;fill:var(--ink);stroke:none}
+
+/* ============================================================
+   06 WHY RUDRA — PAPER · typographic list
+   ============================================================ */
+.why{position:relative;padding:16vh 0 14vh}
+.why__head{row-gap:0}
+.why__label{grid-column:1/-1}
+.why__title{grid-column:1/-1;display:grid;margin-top:6vh}
+.why__w{display:block;overflow:hidden;font-size:23.6vw;padding-bottom:.02em}
+.why__i{display:block}
+.why__w--1,.why__w--3{margin-left:-.06em}
+.why__w--2{justify-self:end;margin-right:-.03em}
+.why__serif{justify-self:end;margin-top:.12em;font-size:var(--t-serif);line-height:.95}
+.why__aside{grid-column:1/span 5;margin-top:8vh;font-size:clamp(18px,1rem + .5vw,24px);font-weight:600;line-height:1.2;letter-spacing:-.02em}
+.why__list{margin:10vh var(--m) 0;border-top:1px solid var(--ink)}
+.wr{position:relative;border-bottom:1px solid var(--ink)}
+.wr__btn{width:100%;display:grid;grid-template-columns:clamp(56px,7vw,110px) 1fr 40px;align-items:center;padding:clamp(16px,2.2vh,24px) 0;transition:padding .5s var(--e-io)}
+.wr__n{font-weight:500;transition:color .25s}
+.wr__t{font-family:var(--f-display);font-size:clamp(30px,5vw,86px);line-height:.86;letter-spacing:-.05em;text-transform:uppercase;transition:transform .5s var(--e-out)}
+.wr__pm{position:relative;justify-self:end;width:22px;height:22px}
+.wr__pm::before,.wr__pm::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:var(--ink);transition:transform .4s var(--e-io)}
+.wr__pm::after{transform:rotate(90deg)}
+.wr__body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--e-io),visibility 0s linear .55s;visibility:hidden}
+.wr__inner{overflow:hidden}
+.wr__inner p{padding:0 0 clamp(22px,3vh,34px) clamp(56px,7vw,110px);max-width:46ch;font-size:clamp(18px,1rem + .45vw,24px);font-weight:600;line-height:1.22;letter-spacing:-.02em}
+.no-js .wr__body{grid-template-rows:1fr;visibility:visible}
+.wr.is-open .wr__body{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .55s var(--e-io)}
+.wr.is-open .wr__btn{padding-top:clamp(26px,4vh,44px)}
+.wr.is-open .wr__n{color:var(--orange)}
+.wr.is-open .wr__pm::after{transform:rotate(0)}
+.wr.is-open .wr__t{transform:translateX(12px)}
+.wr__crop{opacity:0;transition:opacity .3s}
+.wr__crop i{transition:transform .5s var(--e-out);transform:scale(.2)}
+.wr.is-open .wr__crop{opacity:1}
+.wr.is-open .wr__crop i{transform:none}
+.wr__dim{position:absolute;right:0;top:10px;opacity:0;transition:opacity .3s}
+.wr.is-open .wr__dim{opacity:.6}
+.wr--cta{border:0;margin:0 calc(-1 * var(--m))}
+.wr__cta{display:grid;grid-template-columns:clamp(56px,7vw,110px) 1fr auto;align-items:center;gap:0 12px;padding:clamp(20px,3vh,32px) var(--m);background:var(--orange);color:var(--ink);transition:background-color .3s}
+.wr__cta:hover,.wr__cta:focus-visible{background:var(--acid)}
+.wr__cta .wr__t{font-size:clamp(30px,5vw,86px)}
+.wr__go{display:inline-flex;align-items:center;gap:10px;font-weight:500}
+
+/* ============================================================
+   07 PROCESS — ORANGE · the foundry line
+   ============================================================ */
+.proc{position:relative}
+.proc__stage{position:relative;padding:16vh var(--m) 14vh}
+.proc__head{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);row-gap:22px;align-items:end}
+.proc__label{grid-column:1/-1}
+.proc__title{grid-column:1/span 7;font-size:var(--t-sub);font-weight:700;line-height:1;letter-spacing:-.035em}
+.proc__title em{font-size:1.2em;font-weight:400;letter-spacing:-.01em}
+.proc__aside{grid-column:9/span 4;max-width:34ch}
+.proc__status,.proc__line,.proc__flood{display:none}
+.proc__steps{margin-top:8vh;border-top:1px solid var(--ink)}
+.st{display:grid;grid-template-columns:clamp(84px,10vw,150px) 1fr;column-gap:var(--g);padding:clamp(22px,4vh,40px) 0;border-bottom:1px solid var(--ink)}
+.st__node{grid-row:1/span 3;align-self:start;display:grid;place-items:center;width:clamp(64px,7vw,96px);aspect-ratio:1;border:1.5px solid var(--ink);border-radius:50%;font-family:var(--f-display);font-size:clamp(18px,1.6vw,26px);letter-spacing:-.04em;transition:background-color .3s,color .3s}
+.st.is-active .st__node{background:var(--ink);color:var(--orange)}
+.st__meta{font-weight:500}
+.st__name{display:block;overflow:hidden;margin-top:8px;font-size:clamp(56px,12vw,210px);margin-left:-.05em}
+.st__name-i{display:block}
+.st__body{max-width:44ch;margin-top:14px;font-size:clamp(17px,1rem + .35vw,22px);font-weight:600;line-height:1.25;letter-spacing:-.015em}
+/* Stage visual: grid → rectangles → code → devices → snap → loop */
+.viz{position:relative;display:block;width:min(100%,520px);aspect-ratio:16/10;margin-top:6vh;border:1.5px solid var(--ink);overflow:hidden}
+.viz__grid{position:absolute;inset:0 4%;display:grid;grid-template-columns:repeat(8,1fr);column-gap:3%}
+.viz__grid i{border-inline:1px solid rgb(12 12 12 / .28);transform:scaleY(0);transform-origin:top;transition:transform .7s var(--e-out)}
+.viz__ui{position:absolute;inset:0;transform-origin:0 50%;transition:transform .8s var(--e-io)}
+.viz__r{position:absolute;display:block;border:1.5px solid var(--ink);transform:scale(0);transform-origin:0 0;transition:transform .6s var(--e-out),background-color .4s}
+.viz__r i{position:absolute;left:8%;height:5%;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--e-out) .15s}
+.viz__r--nav{left:4%;right:4%;top:6%;height:9%}
+.viz__r--nav i{top:40%;height:20%;width:12%}.viz__r--nav i+i{left:auto;right:6%;width:30%}
+.viz__r--hero{left:4%;top:22%;width:50%;height:42%}
+.viz__r--hero i{height:12%;width:70%;top:16%}.viz__r--hero i:nth-child(2){top:36%;width:50%}.viz__r--hero i:nth-child(3){top:62%;height:5%;width:60%}
+.viz__r--img{left:58%;right:4%;top:22%;height:42%;transition-delay:.08s}
+.viz__r--c1,.viz__r--c2,.viz__r--c3{top:70%;height:24%;width:28%}
+.viz__r--c1{left:4%}.viz__r--c2{left:36%;transition-delay:.12s}.viz__r--c3{left:68%;transition-delay:.18s}
+.viz__r--c1 i,.viz__r--c2 i,.viz__r--c3 i{top:40%;width:70%;height:12%}
+.viz__dev{position:absolute;display:block;border:1.5px solid var(--ink);transform:translateX(160%);opacity:0;transition:transform .8s var(--e-io),opacity .3s}
+.viz__dev i{position:absolute;left:12%;right:12%;height:8%;background:var(--ink)}
+.viz__dev i:first-child{top:12%}.viz__dev i:last-child{top:30%;right:40%}
+.viz__dev--t{right:15%;top:14%;width:18%;height:66%}
+.viz__dev--m{right:4%;top:24%;width:9%;height:50%}
+.viz__live{position:absolute;right:4%;top:6%;display:inline-flex;align-items:center;gap:6px;padding:3px 7px;background:var(--acid);color:var(--ink);font-size:10px;font-weight:500;transform:translateY(-220%);transition:transform .5s var(--e-out)}
+.viz__live i{width:6px;height:6px;border-radius:50%;background:var(--ink)}
+.viz__loop{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%) rotate(0) scale(.6);opacity:0;fill:none;stroke:var(--ink);stroke-width:3;transition:opacity .4s,transform .8s var(--e-out)}
+.viz[data-stage] .viz__grid i{transform:none}
+.viz:not([data-stage="0"]) .viz__r{transform:none}
+.viz[data-stage="2"] .viz__r i,.viz[data-stage="3"] .viz__r i,.viz[data-stage="4"] .viz__r i,.viz[data-stage="5"] .viz__r i{transform:none}
+.viz[data-stage="3"] .viz__ui{transform:scale(.62)}
+.viz[data-stage="3"] .viz__dev{transform:none;opacity:1}
+.viz[data-stage="4"] .viz__r--img,.viz[data-stage="5"] .viz__r--img{background:var(--ink)}
+.viz[data-stage="4"] .viz__live,.viz[data-stage="5"] .viz__live{transform:none}
+.viz[data-stage="5"] .viz__loop{opacity:1;transform:translate(-50%,-50%) rotate(300deg) scale(1)}
+.viz[data-stage="5"] .viz__ui{transform:scale(.94);transform-origin:50% 50%}
+
+@media (max-width:1024px){
+  .svc__title,.svc__aside{grid-column:1/-1}
+  .si{min-height:auto;grid-template-rows:auto auto auto auto;row-gap:20px;padding-bottom:9vh}
+  .si__sym{grid-column:5/-1;grid-row:1/span 2;width:min(44vw,260px)}
+  .si__name{grid-row:3}
+  .si__line,.si__body,.si__points{grid-column:1/-1}
+  .si__points{justify-self:start;text-align:left;display:flex;flex-wrap:wrap;gap:6px 18px}
+  .why__aside{grid-column:1/-1}
+  .wr__btn{grid-template-columns:48px 1fr 28px}
+  .wr__inner p{padding-left:48px}
+  .wr__dim{display:none}
+  .proc__title,.proc__aside{grid-column:1/-1}
+  .st{grid-template-columns:72px 1fr}
+  .st__node{width:56px}
+}

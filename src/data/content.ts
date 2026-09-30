@@ -1,13 +1,15 @@
 /**
  * Services, principles, process and technology content.
- * Edit freely — the layout adapts to the number of items.
+ * Edit freely — the layouts adapt to the number of items.
  */
 
 export interface Service {
   id: string;
   name: string;
-  line: string; // one-liner (shown in list)
-  body: string; // longer copy (shown in detail panel)
+  /** How the giant service name breaks across two lines. */
+  display: [string, string];
+  line: string;
+  body: string;
   points: string[];
 }
 
@@ -15,6 +17,7 @@ export const services: Service[] = [
   {
     id: "design",
     name: "Website Design",
+    display: ["Website", "Design"],
     line: "Interfaces shaped around your business.",
     body: "Modern UI/UX and visual systems designed around your brand, your audience and the one action you need visitors to take.",
     points: ["UI / UX design", "Visual direction", "Design systems"],
@@ -22,6 +25,7 @@ export const services: Service[] = [
   {
     id: "development",
     name: "Web Development",
+    display: ["Web", "Development"],
     line: "Production-ready, from the first commit.",
     body: "Responsive, scalable websites built with clean, maintainable code — engineered to load fast and hold up as you grow.",
     points: ["Responsive builds", "Clean code", "Deployment"],
@@ -29,6 +33,7 @@ export const services: Service[] = [
   {
     id: "business",
     name: "Business Websites",
+    display: ["Business", "Websites"],
     line: "Credibility, on every screen.",
     body: "Professional websites that tell your story clearly, earn trust in seconds and turn visitors into enquiries.",
     points: ["Clear messaging", "Enquiry flows", "Local presence"],
@@ -36,6 +41,7 @@ export const services: Service[] = [
   {
     id: "ecommerce",
     name: "E-commerce Development",
+    display: ["E-commerce", "Development"],
     line: "Storefronts built to sell.",
     body: "Modern online stores designed around your products — clean browsing, confident checkout, fewer abandoned carts.",
     points: ["Product catalogues", "Checkout UX", "Mobile-first"],
@@ -43,6 +49,7 @@ export const services: Service[] = [
   {
     id: "landing",
     name: "Landing Pages",
+    display: ["Landing", "Pages"],
     line: "One page. One job. Done well.",
     body: "Focused pages for launches, campaigns, products and lead generation — built to convert, measured to improve.",
     points: ["Campaign pages", "Lead capture", "A/B-ready"],
@@ -50,6 +57,7 @@ export const services: Service[] = [
   {
     id: "redesign",
     name: "Website Redesign",
+    display: ["Website", "Redesign"],
     line: "Old site, new standard.",
     body: "We take outdated websites and rebuild them into modern experiences — keeping what works, fixing what doesn't.",
     points: ["UX audit", "Visual refresh", "Rebuild"],
@@ -57,6 +65,7 @@ export const services: Service[] = [
   {
     id: "performance",
     name: "Performance Optimization",
+    display: ["Performance", "Optimization"],
     line: "Every millisecond counts.",
     body: "We tune speed, responsiveness and Core Web Vitals so your site feels instant — for users and for search engines.",
     points: ["Core Web Vitals", "Asset optimisation", "Technical SEO"],
@@ -64,11 +73,25 @@ export const services: Service[] = [
   {
     id: "support",
     name: "Maintenance & Support",
+    display: ["Maintenance", "& Support"],
     line: "We don't disappear after launch.",
     body: "Ongoing updates, fixes, improvements and technical support — so your website keeps working as hard as you do.",
     points: ["Updates & fixes", "Improvements", "Technical support"],
   },
 ];
+
+/** Philosophy — the four disciplines treated as one. */
+export const philosophy = {
+  lead: "Your website isn't just a page on the internet. It's",
+  statement: ["Your digital", "first impression."],
+  lede: "Visitors decide in seconds whether to trust you. We make those seconds count — by treating design, development, performance and usability as one discipline, not four separate jobs.",
+  words: [
+    { id: "design", word: "Design.", label: "Design", text: "Interfaces with a point of view — clear, considered, unmistakably yours." },
+    { id: "develop", word: "Develop.", label: "Development", text: "Clean, responsive builds that behave on every screen size." },
+    { id: "perform", word: "Perform.", label: "Performance", text: "Lightweight pages that load fast and stay fast." },
+    { id: "convert", word: "Convert.", label: "Usability", text: "Obvious paths to the one thing you want visitors to do." },
+  ],
+};
 
 export const principles = [
   { title: "Modern Design", body: "Contemporary, considered interfaces — never a recycled template." },
@@ -91,20 +114,35 @@ export const process = [
 
 /**
  * Technology toolkit. Edit this list to match the stack you actually use.
+ * `kind` is a plain description of what the technology is (shown as small labels).
  */
 export const tech = [
-  "HTML5",
-  "CSS3",
-  "JavaScript",
-  "TypeScript",
-  "Angular",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Tailwind CSS",
-  "Git",
-  "REST APIs",
+  { name: "HTML5", kind: "Markup" },
+  { name: "CSS3", kind: "Styling" },
+  { name: "JavaScript", kind: "Language" },
+  { name: "TypeScript", kind: "Typed language" },
+  { name: "Angular", kind: "Framework" },
+  { name: "React", kind: "UI library" },
+  { name: "Next.js", kind: "React framework" },
+  { name: "Node.js", kind: "Runtime" },
+  { name: "Tailwind CSS", kind: "Utility CSS" },
+  { name: "Git", kind: "Version control" },
+  { name: "REST APIs", kind: "Integration" },
 ];
+
+export const about = {
+  statement: ["A small lab", "with a serious standard."],
+  paragraphs: [
+    "Rudra InfoTech Lab is a web design and development studio. We build websites for businesses, brands, startups and entrepreneurs who want more from the web than a page that simply exists.",
+    "We work like a lab: curious, hands-on and a little obsessive about the details. You talk directly to the people designing your pages and writing your code — so ideas don't get lost in translation.",
+    "Small enough to care about your project personally. Technical enough to build it properly.",
+  ],
+  facts: [
+    { k: "What we do", v: "Website design & development" },
+    { k: "Who it's for", v: "Businesses, brands, startups & entrepreneurs" },
+    { k: "How we work", v: "Directly, transparently, end to end" },
+  ],
+};
 
 export const websiteTypes = [
   "Business Website",
