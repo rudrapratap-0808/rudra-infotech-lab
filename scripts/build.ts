@@ -198,8 +198,19 @@ ${js.preload.map((m) => `<link rel="modulepreload" href="${m}">`).join("\n")}
 </body>
 </html>
 `;
-  await mkdir(join(DIST, "admin"), { recursive: true });
-  await writeFile(join(DIST, "admin/index.html"), page);
+  const adminDir = join(DIST, "admin");
+  await mkdir(adminDir, { recursive: true });
+  await writeFile(join(adminDir, "index.html"), page);
+
+  // Auth links can be opened directly from email clients, where no prior SPA navigation
+  // exists. Give those routes physical index files so they work even if a host evaluates
+  // trailing-slash/static-file rules before the catch-all rewrite. The URL (and Supabase's
+  // #access_token hash) stays untouched, so the client router still sees /admin/reset/.
+  for (const route of ["login", "forgot", "reset"]) {
+    const dir = join(adminDir, route);
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, "index.html"), page);
+  }
   return { bytes: page.length, count: js.count };
 }
 
