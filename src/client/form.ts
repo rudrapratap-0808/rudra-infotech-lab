@@ -17,10 +17,12 @@ const rules: Record<string, Rule> = {
     if (!/^[+\d\s().-]+$/.test(v) || digits.length < 7 || digits.length > 15) return "Please enter a valid phone / WhatsApp number.";
     return null;
   },
-  type: (v) => (!v ? "Pick the type of website you need." : null),
+  service: (v) => (!v ? "Pick the service you need." : null),
   details: (v) =>
     !v ? "Tell us a little about the project." : v.length < 20 ? `A few more words, please (${20 - v.length} to go).` : null,
 };
+
+const waUrl = (n: string, text: string) => `https://wa.me/${n.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
 
 export function initForm(): void {
   const form = $<HTMLFormElement>("[data-form]");
@@ -31,8 +33,18 @@ export function initForm(): void {
   const submit = $<HTMLButtonElement>("button[type='submit']", form)!;
   const counter = $("[data-count]", form);
   const details = $<HTMLTextAreaElement>("textarea[name='details']", form);
+  const buttonText = form.dataset.button || "Send the brief";
+  const successTitle = $("[data-success-title]", card)?.textContent || "";
+  const successText = $("[data-success-text]", card)?.textContent || "";
   const loadedAt = performance.now();
   let attempted = false;
+
+  // Pre-select the service from ?service= (links from service and project pages)
+  const wanted = new URLSearchParams(location.search).get("service");
+  if (wanted) {
+    const radio = $$<HTMLInputElement>("input[name='service']", form).find((r) => r.value.toLowerCase() === wanted.toLowerCase());
+    if (radio) radio.checked = true;
+  }
 
   const values = (): Values => {
     const fd = new FormData(form);
@@ -64,8 +76,9 @@ export function initForm(): void {
     return bad;
   };
 
-  const setStatus = (msg: string, kind: "error" | "info" | "" = "") => {
-    status.textContent = msg;
+  const setStatus = (msg: string, kind: "error" | "info" | "" = "", html = false) => {
+    if (html) status.innerHTML = msg;
+    else status.textContent = msg;
     status.className = `form__status${kind ? ` is-${kind}` : ""}`;
   };
 
@@ -74,13 +87,15 @@ export function initForm(): void {
     submit.disabled = on;
     submit.setAttribute("aria-busy", String(on));
     const label = $(".btn__label", submit);
-    if (label) label.textContent = on ? "Sending…" : "Send the brief";
+    if (label) label.textContent = on ? "Sending…" : buttonText;
   };
 
-  const showSuccess = (title?: string, text?: string) => {
+  const showSuccess = (title = successTitle, text = successText) => {
     if (!success) return;
-    if (title) $("h3", success)!.textContent = title;
-    if (text) $("p", success)!.textContent = text;
+    const t = $("[data-success-title]", success);
+    const p = $("[data-success-text]", success);
+    if (t) t.textContent = title;
+    if (p) p.textContent = text;
     form.hidden = true;
     success.hidden = false;
     success.focus();
@@ -119,8 +134,9 @@ export function initForm(): void {
     }
 
     const v = values();
+    const elapsed = Math.round(performance.now() - loadedAt);
     // Spam protection: honeypot + minimum fill time → silently "succeed".
-    if (v.website || performance.now() - loadedAt < MIN_FILL_MS) {
+    if (v.website || elapsed < MIN_FILL_MS) {
       showSuccess();
       return;
     }
@@ -129,13 +145,12 @@ export function initForm(): void {
       setStatus("You just sent a brief — please wait a minute before sending another.", "info");
       return;
     }
-    delete v.website;
 
     const endpoint = form.dataset.endpoint || "";
     const whatsapp = form.dataset.whatsapp || "";
     const email = form.dataset.email || "";
     const summary = [
-      `New project brief — ${v.type}`,
+      `Hi Rudra InfoTech Lab — new project brief (${v.service})`,
       `Name: ${v.name}`,
       `Email: ${v.email}`,
       v.phone && `Phone / WhatsApp: ${v.phone}`,
@@ -147,44 +162,63 @@ export function initForm(): void {
       .filter((l) => l !== "" && l !== undefined && l !== null)
       .join("\n");
 
-    setLoading(true);
-    try {
-      if (endpoint) {
-        let extra: Values = {};
-        try {
-          extra = JSON.parse(form.dataset.extra || "{}");
-        } catch {
-          /* ignore malformed config */
-        }
-        const ctrl = new AbortController();
-        const timer = window.setTimeout(() => ctrl.abort(), 15000);
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ ...extra, ...v, subject: `New project brief — ${v.name}`, page: location.href }),
-          signal: ctrl.signal,
-        });
-        clearTimeout(timer);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        localStorage.setItem(STORE_KEY, String(Date.now()));
-        form.reset();
-        showSuccess();
-      } else if (whatsapp) {
-        window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`, "_blank", "noopener");
+    /** When the database isn't reachable, hand the brief to WhatsApp (then email). */
+    const fallback = (): boolean => {
+      if (whatsapp) {
+        window.open(waUrl(whatsapp, summary), "_blank", "noopener");
         showSuccess("Almost there.", "WhatsApp has opened with your brief ready — just press send and we'll take it from there.");
-      } else if (email) {
+        return true;
+      }
+      if (email) {
         location.href = `mailto:${email}?subject=${encodeURIComponent(`New project brief — ${v.name}`)}&body=${encodeURIComponent(summary)}`;
         showSuccess("Almost there.", "Your email app should open with the brief ready — just press send and we'll take it from there.");
-      } else {
-        console.warn("[contact form] No delivery method configured — set form.endpoint, contact.whatsapp or contact.email in src/data/site.ts");
+        return true;
+      }
+      return false;
+    };
+    const failText = () =>
+      `Sorry — your brief couldn't be sent just now. Please try again in a moment${
+        whatsapp ? `, or <a class="ulink" href="${waUrl(whatsapp, summary)}" target="_blank" rel="noopener noreferrer">send it on WhatsApp</a>` : email ? `, or email us at ${email.replace(/[<>&"']/g, "")}` : ""
+      }.`;
+
+    setLoading(true);
+    try {
+      if (!endpoint) {
+        if (!fallback()) throw new Error("unconfigured");
+        return;
+      }
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ ...v, elapsed, page: location.href }),
+        signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined,
+      });
+      const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; errors?: Record<string, string>; message?: string };
+      if (res.ok && body.ok !== false) {
+        localStorage.setItem(STORE_KEY, String(Date.now()));
+        form.reset();
+        if (counter && details) counter.textContent = `0000 / ${details.maxLength}`;
+        showSuccess();
+        return;
+      }
+      if (res.status === 503 || res.status === 404 || body.error === "not_configured") {
+        if (fallback()) return;
         throw new Error("unconfigured");
       }
+      if (res.status === 400 && body.errors) {
+        const names = Object.keys(body.errors);
+        names.forEach((n) => showError(n, body.errors![n]));
+        setStatus(names.length === 1 ? "One field needs a quick fix." : `${names.length} fields need a quick fix.`, "error");
+        return;
+      }
+      if (res.status === 429) {
+        setStatus(body.message || "You've sent a few briefs in a short time — please try again a little later.", "info");
+        return;
+      }
+      throw new Error(`HTTP ${res.status}`);
     } catch (err) {
-      if ((err as Error).message !== "unconfigured") console.error("[contact form]", err);
-      setStatus(
-        `Sorry — your brief couldn't be sent just now. Please try again in a moment${email ? `, or email us at ${email}` : ""}.`,
-        "error"
-      );
+      if ((err as Error).message !== "unconfigured") console.warn("[contact form]", (err as Error).message);
+      setStatus(failText(), "error", true);
     } finally {
       setLoading(false);
     }

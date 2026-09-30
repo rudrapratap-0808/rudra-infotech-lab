@@ -1,98 +1,183 @@
-# Rudra InfoTech Lab — Website
+# Rudra InfoTech Lab — Website + Admin
 
-The studio website of **Rudra InfoTech Lab (RITL)**, a web design and development lab.
+The connected platform for **Rudra InfoTech Lab (RITL)**: a public agency website, portfolio and app case studies, WhatsApp contact, a Supabase-backed CMS/CRM, media library, SEO controls, users/roles, activity log, and Vercel publishing.
 
-It's a static TypeScript build. Motion uses **GSAP + ScrollTrigger + Lenis**, stored in the repo so builds never depend on a package registry. The fonts are self-hosted, and there's no framework runtime.
+- Public design: Swiss editorial × digital foundry
+- Public rendering: static HTML with metadata and JSON-LD in the initial document
+- Backend: Supabase Postgres, Auth, Storage, PostgREST, and row-level security
+- Hosting/functions: Vercel
+- Admin: zero-dependency vanilla TypeScript SPA at `/admin/`
+- Motion: vendored GSAP + ScrollTrigger + Lenis; no package/CDN runtime dependency
+
+## Production routes
+
+Public:
+
+- `/`
+- `/projects/`
+- `/projects/<slug>/`
+- `/apps/`
+- `/services/`
+- `/services/<slug>/`
+- `/contact/`
+- `/privacy/`
+
+Admin:
+
+- `/admin/login/`
+- `/admin/`
+- `/admin/enquiries/`
+- `/admin/projects/`
+- `/admin/apps/`
+- `/admin/services/`
+- `/admin/content/`
+- `/admin/process/`
+- `/admin/toolkit/`
+- `/admin/media/`
+- `/admin/seo/`
+- `/admin/contact/`
+- `/admin/form-settings/`
+- `/admin/users/`
+- `/admin/activity/`
+- `/admin/settings/`
+
+## One-time production setup
+
+Follow **[SETUP.md](SETUP.md)** to:
+
+1. create the Supabase project;
+2. run `supabase/setup.sql` and `supabase/seed.sql`;
+3. create/promote the first Owner;
+4. configure Auth redirect URLs and disable public sign-ups;
+5. add Vercel environment variables;
+6. create the Vercel deploy hook;
+7. verify the live connected workflow.
+
+Without Supabase variables, the public site deliberately builds from `src/data/seed.ts`; `/admin/` displays a setup notice, and project briefs fall back to WhatsApp at **+351 930 656 040**. There is no fake in-memory admin mode.
+
+## Commands
 
 ```bash
-npm run build        # → dist/  (static HTML, inlined CSS, hashed JS)
-npm run serve        # preview at http://localhost:4321
-npm run qa           # headless-Chrome audit + screenshots at 4 viewports (.build/qa)
-npm run og           # regenerate public/og.png + app icons
-npm run images       # re-crop project imagery from .imagery/ → public/work/*.webp
-npm run screenshots  # capture real screenshots of the live project sites (needs internet)
+npm run build       # Typecheck + build public pages, hashed JS and /admin/ → dist/
+npm run typecheck   # Public build, browser client and admin TypeScript
+npm run serve       # Static preview at http://localhost:4321 (also emulates /admin/* + /api/*)
+npm run qa          # Public headless-browser audit/screenshots
+npm run qa:admin    # Full connected admin E2E against local Postgres + PostgREST
+npm run images      # Regenerate optimized project/app WebP assets from .imagery/
+npm run og          # Regenerate versioned 1200×630 OG image + app icons
+npm run sql         # Regenerate supabase/seed.sql from src/data/seed.ts
+npm run screenshots # Capture live portfolio screenshots (internet required)
 ```
 
-## Deploy (Vercel)
+The project only declares TypeScript as a development dependency. Runtime libraries and fonts are stored in the repository.
 
-`vercel.json` sets the build command, `dist` output, trailing-slash URLs, caching (hashed JS and fonts are immutable) and security headers.
+## Environment variables
 
-- **Git:** push to `main` and Vercel deploys. Every PR gets a preview URL.
-- **CLI:** `npx vercel --prod`.
-
-Canonical, sitemap and OG URLs come from Vercel's production domain automatically (`VERCEL_PROJECT_PRODUCTION_URL`). Set `SITE_URL` to override.
-
-Optional environment variables:
-
-| Variable | Purpose |
-|---|---|
-| `FORM_ENDPOINT` | Where the project brief form posts (Formspree, Web3Forms, …). Redeploy after setting |
-| `SITE_URL` | Force a canonical domain |
-
-## Before you share the site
-
-| What | Where |
-|---|---|
-| Form delivery | `FORM_ENDPOINT`, or `site.contact.whatsapp` / `site.contact.email` in `src/data/site.ts`. Until one is set, submissions show an error |
-| Contact details, socials | `src/data/site.ts`. Empty values are hidden everywhere |
-| MightyMindz.in | No source repository was available, so it has a neutral description and a typographic cover. Add real details in `src/data/projects.ts` |
-| Live screenshots | Optional: `npm run screenshots` saves `public/work/<slug>.png`, and the frame label switches to **LIVE BUILD** |
-
-### About the project imagery and facts
-
-The descriptions, tags and accent colours for Dotaanke, RojgarLelo, Sarkar2.0 and Rahul Construction were checked against each project's own repository: page titles, meta descriptions, routes and `package.json`.
-
-The frames show each site's own hero imagery, labelled **HERO IMAGE**, not a screenshot. RojgarLelo and MightyMindz have no imagery in their repos, so they get typographic covers labelled **COVER**.
-
-## Design system — "Digital Foundry"
-
-Bold Swiss editorial × creative development studio.
-
-**Colour.** Each section uses one environment:
-
-| Colour | Hex | Used in |
+| Variable | Visibility | Purpose |
 |---|---|---|
-| Paper | `#F1EEE6` | Hero, why, the lab |
-| Ink | `#0C0C0C` | Philosophy, work, manifesto, footer |
-| Rudra Orange | `#FF4B18` | Process, contact, hero shape |
-| Electric Blue | `#3155FF` | Services |
-| Acid | `#DFFF36` | Toolkit, work metadata, availability |
-| Soft Grey | `#B7B5AE` | Metadata on ink |
+| `SUPABASE_URL` | Server + build | Supabase project URL |
+| `SUPABASE_ANON_KEY` or `SUPABASE_PUBLISHABLE_KEY` | Browser-safe | Public API key; access is limited by RLS |
+| `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_SECRET_KEY` | **Server only** | API functions, Auth admin operations, enquiry insertion |
+| `DEPLOY_HOOK_URL` | **Server only** | Vercel rebuild from Admin → Publish website |
+| `IP_SALT` | **Server only** | Salt for daily anti-spam IP hashes |
+| `SITE_URL` | Build | Optional canonical domain override |
+| `RESEND_API_KEY` | **Server only, optional** | Enquiry email notifications |
+| `NOTIFY_EMAIL` | Server, optional | Notification recipients |
+| `NOTIFY_FROM` | Server, optional | Verified notification sender |
 
-Surfaces are flat colour with 1px rules and a 3.5% grain. Gradients are used only to draw hard-edged rules.
-
-**Type** — each font has one job:
-
-- **Archivo Black**: statements (−0.055em tracking, 0.8 line height).
-- **Inter Tight** 500–700: communication.
-- **Instrument Serif**: emotional statements, used sparingly.
-- **IBM Plex Mono**: the lab's technical labels.
-
-The Latin subsets have no ↗ or → glyphs, so all arrows are inline SVG.
-
-**Grid.** 12 columns, with 40 / 24 / 16px outer margins and a 20px gutter. Small text sits on the grid. Giant type is allowed to break out of it and crop at the viewport edges.
-
-**Section themes.** `data-theme="paper|ink|blue|orange|acid"` sets each section's colours, focus-ring colour and hairlines. The fixed nav hit-tests what's under it and switches between paper and ink. It also shows the current chapter.
+See [SETUP.md](SETUP.md) for exact values and locations.
 
 ## Architecture
 
-```
-src/data/        content + config (site, projects, services, process, toolkit, about)
-src/components/  server-rendered HTML (hero, philosophy, work, services, sections, contact, footer, nav, symbols, ui)
-src/pages/       page composition + meta + JSON-LD
-src/styles/      00-fonts … 08-motion (concatenated, minified, inlined)
-src/client/      core (Lenis + ScrollTrigger), chrome (nav/menu/cursor/anchors), intro,
-                 scenes (all scroll choreography), widgets (planes, why, toolkit lanes), form
-src/client/vendor/lenis   Lenis 1.3.26 source (MIT)
-vendor/gsap      GSAP 3.15.0 dist + types (GSAP standard "no charge" license)
-public/fonts     self-hosted WOFF2 + OFL licences
-scripts/         build, serve, qa (CDP), og, images, screenshots
+```text
+api/
+  _lib/supabase.js       server-side Supabase/auth/HTTP helpers
+  enquiry.js             validated, rate-limited, store-first public form endpoint
+  rebuild.js             authenticated Vercel deploy-hook endpoint
+  admin-users.js         authenticated invite/reset/delete user endpoint
+
+supabase/
+  setup.sql               schema, constraints, triggers, RLS, RPCs, Storage policies
+  seed.sql                generated initial content (idempotent)
+  local/bootstrap.sql     local emulator support only — never run in Supabase
+
+src/
+  data/                   shared data model, seed fallback, runtime store, site constants
+  components/             server-rendered public HTML components
+  pages/                  public pages, metadata and structured data
+  styles/                 public design system and responsive layouts
+  client/                 public progressive enhancement, motion, forms, WhatsApp
+  admin/                  private SPA: auth, API/storage client, shell, CMS/CRM views, CSS
+
+scripts/
+  build.ts                Supabase-or-seed static build, assets, sitemap, robots, admin
+  content.ts              public PostgREST loader (anon/publishable key + RLS)
+  media.ts                image dimensions and responsive source discovery
+  local-supabase.ts       real Postgres/PostgREST test gateway for Auth/Storage APIs
+  qa.ts                   public visual, interaction, accessibility/link audit
+  qa-admin.ts             57-check connected admin E2E suite
+  images.ts / og.ts       WebP and Open Graph generation
 ```
 
-**Motion.**
+## Content flow
 
-- **Scrolling:** one Lenis instance runs on GSAP's ticker and drives ScrollTrigger.
-- **Desktop (≥1025px, `html.stage`):** the hero, work reel, services and process get pinned stages, set up with `gsap.matchMedia`.
-- **Smaller screens:** unpinned, lighter motion.
-- **Reduced motion or no JS:** every chapter is a complete static layout with the same composition and colours, and no movement.
-- **Custom cursor (fine pointers only):** 7px dot, with VIEW / VISIT / GO / DRAG / BUILD labels.
+1. Admin actions persist immediately to Supabase.
+2. Draft/archived projects stay private; only `published` rows pass public RLS and enter the build.
+3. **Publish website** calls authenticated `/api/rebuild`.
+4. The server-only deploy hook starts a Vercel build.
+5. `scripts/content.ts` fetches published content using the public key and RLS.
+6. Vercel atomically replaces the deployment only after a successful build.
+
+If Supabase is configured but unavailable, the build fails on purpose rather than silently replacing live database content with seed data.
+
+## Enquiry flow
+
+1. Browser validation + honeypot + minimum fill time.
+2. `/api/enquiry` validates again, checks request origin, and rate-limits a salted daily IP hash.
+3. It inserts the enquiry first as `NEW`, unread.
+4. It optionally sends a Resend notification afterward; email failure never loses the database record.
+5. If the API is not configured/reachable, the browser opens WhatsApp with the complete brief pre-filled.
+
+Anonymous users cannot insert into or read the enquiries table directly.
+
+## Admin roles
+
+- **Owner:** full access, including owner management.
+- **Admin:** CRM, portfolio/apps, services, content, process/toolkit, media, SEO, settings, users, activity; cannot grant/remove Owner or remove an Owner.
+- **Editor:** projects/apps, website content, process/toolkit, and media only.
+- **Pending/Disabled:** no admin access.
+
+These rules are enforced in Postgres with RLS and triggers—not just hidden menu links.
+
+## SEO and media
+
+- Initial HTML contains title, description, canonical, Open Graph, Twitter, and JSON-LD.
+- Structured data includes Organization, ProfessionalService, WebSite, WebPage, CreativeWork, SoftwareApplication, Service, ItemList, and BreadcrumbList using factual fields only.
+- Project SEO supports title, description, social image, and canonical override.
+- `sitemap.xml` contains only published/indexable pages.
+- `robots.txt` and Vercel headers block `/admin/` and `/api/`.
+- The social image uses versioned `/og-v3.png` to avoid stale crawler cache from older branding.
+- Admin uploads accept JPG/JPEG, PNG, WebP, and AVIF up to 10 MB; JPG/PNG are converted to WebP, and wide images get an 800px variant.
+- Bundled portfolio/app images total about **560 KB**, reduced from 728 KB (~23%).
+
+## Design system
+
+| Colour | Hex | Role |
+|---|---|---|
+| Ink | `#0C0C0C` | Dark chapters and footer |
+| Paper | `#F1EEE6` | Editorial surfaces |
+| Rudra Orange | `#FF4B18` | Calls to action, process, contact |
+| Electric Blue | `#3155FF` | Services |
+| Acid | `#DFFF36` | Toolkit and live/status accents |
+| Soft Grey | `#B7B5AE` | Secondary text on ink |
+
+Fonts: Archivo Black, Inter Tight, Instrument Serif, and IBM Plex Mono (self-hosted). Public desktop motion uses pinned GSAP/ScrollTrigger chapters; mobile, reduced-motion, and no-JavaScript layouts remain complete and readable. Admin intentionally has no custom cursor or heavy motion.
+
+## Verification status
+
+- `npm run typecheck`: passing
+- `npm run build`: passing
+- Public browser QA: **0 issues** (mobile full-scroll, route/link/accessibility audits, form, menu, reduced motion, and no-JS; desktop/laptop/tablet screenshots also completed)
+- Connected admin E2E: **57 checks passed, 0 browser problems**
+- Schema/seed: applied twice against real PostgreSQL to verify idempotency
+- RLS/roles/storage: verified against real PostgreSQL + PostgREST

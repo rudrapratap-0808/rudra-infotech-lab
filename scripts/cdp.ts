@@ -37,7 +37,7 @@ export class CDP {
     this.handlers.push(fn);
   }
   async eval<T = Json>(expr: string): Promise<T> {
-    const r = await this.send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true });
+    const r = await this.send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true, userGesture: true });
     if (r.__error) throw new Error(r.__error.message);
     if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text || "eval failed");
     return r.result?.value as T;

@@ -2,13 +2,17 @@
  * Captures real screenshots of the portfolio sites into public/work/<slug>.png
  * using headless Chrome. Run on a machine with internet access:
  *   npm run screenshots && npm run build
+ * The build uses public/work/<slug>.(webp|jpg|png) as a project's desktop screenshot
+ * when none is set. With Supabase connected, upload screenshots in the admin instead.
  * Tip: convert to WebP afterwards for smaller files (e.g. `cwebp -q 82 in.png -o out.webp`).
  */
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { PUBLIC } from "./paths.js";
 import { findChrome, screenshot } from "./chrome.js";
-import { projects } from "../src/data/projects.js";
+import { seedProjects } from "../src/data/seed.js";
+
+const projects = seedProjects.filter((p) => p.live_url).map((p) => ({ slug: p.slug, name: p.name, url: p.live_url! }));
 
 async function main() {
   const chrome = await findChrome();

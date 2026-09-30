@@ -1,8 +1,14 @@
-/** Zero-dependency static server for /dist (mirrors typical static-host behaviour). */
+/**
+ * Zero-dependency local server for /dist that mirrors the Vercel deployment:
+ *   • static files + directory index + 404.html
+ *   • /admin/* → admin/index.html (vercel.json rewrite)
+ *   • /api/<name> → the Vercel function in api/<name>.js
+ */
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
-import { DIST } from "./paths.js";
+import { pathToFileURL } from "node:url";
+import { DIST, ROOT } from "./paths.js";
 
 const TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -13,23 +19,37 @@ const TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
+  ".avif": "image/avif",
   ".ico": "image/x-icon",
   ".json": "application/json",
   ".webmanifest": "application/manifest+json",
   ".xml": "application/xml",
   ".txt": "text/plain; charset=utf-8",
+  ".woff2": "font/woff2",
 };
 
 const isFile = (p: string) => stat(p).then((s) => s.isFile(), () => false);
+
+async function api(name: string, req: any, res: any) {
+  const file = join(ROOT, "api", `${name}.js`);
+  if (!/^[a-z-]+$/.test(name) || !(await isFile(file))) {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ error: "not_found" }));
+  }
+  const mod = await import(pathToFileURL(file).href);
+  await mod.default(req, res);
+}
 
 export function startServer(port: number): Promise<{ port: number; close: () => void }> {
   const server = createServer(async (req: any, res: any) => {
     try {
       const url = new URL(req.url, "http://localhost");
       const path = normalize(decodeURIComponent(url.pathname));
+      if (path.startsWith("/api/")) return await api(path.slice(5).replace(/\/$/, ""), req, res);
       let file = join(DIST, path);
       if (!(await isFile(file))) file = join(DIST, path, "index.html");
       let status = 200;
+      if (!(await isFile(file)) && (path === "/admin" || path.startsWith("/admin/"))) file = join(DIST, "admin/index.html");
       if (!(await isFile(file))) {
         file = join(DIST, "404.html");
         status = 404;
@@ -39,11 +59,12 @@ export function startServer(port: number): Promise<{ port: number; close: () => 
         "Content-Type": TYPES[extname(file)] ?? "application/octet-stream",
         "Cache-Control": path.startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache",
         "X-Content-Type-Options": "nosniff",
+        ...(path.startsWith("/admin") ? { "X-Robots-Tag": "noindex, nofollow" } : {}),
       });
       res.end(body);
-    } catch {
-      res.writeHead(400);
-      res.end("Bad request");
+    } catch (err) {
+      if (!res.headersSent) res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(`Server error: ${(err as Error).message}`);
     }
   });
   return new Promise((resolve) => {

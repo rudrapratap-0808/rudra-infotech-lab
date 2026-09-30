@@ -2,19 +2,22 @@
   "name": "rudra-infotech-lab",
   "version": "1.0.0",
   "private": true,
-  "description": "Rudra InfoTech Lab \u2014 studio website. Static TypeScript build with GSAP, ScrollTrigger and Lenis (vendored).",
+  "description": "Rudra InfoTech Lab \u2014 studio website + admin panel. Static TypeScript build (GSAP, ScrollTrigger, Lenis vendored), Supabase-backed CMS/CRM, Vercel functions.",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json && node .build/scripts/build.js",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.client.json && tsc -p tsconfig.admin.json && node .build/scripts/build.js",
     "serve": "node .build/scripts/serve.js",
     "preview": "npm run build && npm run serve",
+    "dev:local": "npm run build && node .build/scripts/dev-local.js",
+    "sql": "tsc -p tsconfig.json && node .build/scripts/seed-sql.js",
     "screenshots": "tsc -p tsconfig.json && node .build/scripts/screenshots.js",
     "og": "tsc -p tsconfig.json && node .build/scripts/og.js",
     "qa": "npm run build && node .build/scripts/qa.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit",
+    "qa:admin": "npm run build && node .build/scripts/qa-admin.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit && tsc -p tsconfig.admin.json --noEmit",
     "images": "tsc -p tsconfig.json && node .build/scripts/images.js"
   },
   "devDependencies": {

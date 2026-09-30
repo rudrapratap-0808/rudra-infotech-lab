@@ -7,6 +7,8 @@ export const DIST = resolve(ROOT, "dist");
 export const PUBLIC = resolve(ROOT, "public");
 export const STYLES = resolve(ROOT, "src/styles");
 export const CLIENT_OUT = resolve(ROOT, ".build/client");
+export const ADMIN_OUT = resolve(ROOT, ".build/admin-src");
+export const ADMIN_STYLES = resolve(ROOT, "src/admin/styles");
 
 /** Locates a Chrome/Chromium binary for the screenshot + OG scripts. */
 export const CHROME_CANDIDATES = [

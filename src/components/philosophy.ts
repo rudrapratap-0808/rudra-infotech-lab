@@ -1,5 +1,5 @@
-import { philosophy } from "../data/content.js";
 import { chapters } from "../data/site.js";
+import { D } from "../data/store.js";
 import { chars, esc, html, nn } from "../lib/html.js";
 import { chapterAttr, label } from "./ui.js";
 
@@ -26,25 +26,35 @@ const gfx: Record<string, string> = {
   convert: `<span class="pg pg--target"><svg viewBox="0 0 400 400" aria-hidden="true" focusable="false"><circle pathLength="1" cx="200" cy="200" r="190"/><circle pathLength="1" cx="200" cy="200" r="128"/><circle pathLength="1" cx="200" cy="200" r="66"/><circle class="pg-bull" cx="200" cy="200" r="16"/><path pathLength="1" d="M200 0V400M0 200H400"/></svg></span>`,
 };
 
-export const philosophySection = () => html`<section class="phil" id="philosophy" data-theme="ink" ${chapterAttr("philosophy")} aria-labelledby="phil-title">
+const WORDS = [
+  { id: "design", word: "Design.", label: "Design" },
+  { id: "develop", word: "Develop.", label: "Development" },
+  { id: "perform", word: "Perform.", label: "Performance" },
+  { id: "convert", word: "Convert.", label: "Usability" },
+] as const;
+
+export const philosophySection = () => {
+  const ph = D().content.philosophy;
+  return html`<section class="phil" id="philosophy" data-theme="ink" ${chapterAttr("philosophy")} aria-labelledby="phil-title">
   <span class="phil__bar" aria-hidden="true"></span>
   <div class="phil__intro grid">
     ${label(chapters.philosophy.n, chapters.philosophy.label, "phil__label")}
     <p class="phil__frame mono" aria-hidden="true">Frame / 002</p>
-    <p class="phil__lead">${esc(philosophy.lead)}</p>
+    <p class="phil__lead">${esc(ph.lead)}</p>
     <h2 class="phil__statement serif" id="phil-title" data-split-lines>
-      ${philosophy.statement.map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}
+      ${[ph.statement_1, ph.statement_2].filter(Boolean).map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}
     </h2>
-    <p class="phil__lede">${esc(philosophy.lede)}</p>
+    <p class="phil__lede">${esc(ph.description)}</p>
   </div>
   <ol class="phil__words" role="list">
-    ${philosophy.words.map(
+    ${WORDS.map(
       (w, i) => html`<li class="pw pw--${w.id}" data-pw style="--fs:calc(94vw / ${WIDTH[w.id] ?? 5})">
         <span class="pw__gfx" aria-hidden="true">${gfx[w.id] ?? ""}</span>
-        <p class="pw__meta mono"><span>${nn(i + 1)} / ${nn(philosophy.words.length)}</span><span>${esc(w.label)}</span></p>
+        <p class="pw__meta mono"><span>${nn(i + 1)} / ${nn(WORDS.length)}</span><span>${esc(w.label)}</span></p>
         <h3 class="pw__word display"><span class="sr-only">${esc(w.word)}</span><span class="pw__chars" aria-hidden="true">${chars(w.word.toUpperCase())}</span></h3>
-        <p class="pw__text">${esc(w.text)}</p>
+        <p class="pw__text">${esc(ph[w.id])}</p>
       </li>`
     )}
   </ol>
 </section>`;
+};

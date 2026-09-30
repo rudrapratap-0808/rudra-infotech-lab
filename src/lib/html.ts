@@ -49,3 +49,15 @@ export const line = (inner: string, cls = "ln"): string =>
 
 /** Zero-padded index: 1 → "01". */
 export const nn = (n: number): string => String(n).padStart(2, "0");
+
+/** Only http(s), protocol-relative-free site paths, mailto: and tel: survive — never javascript: etc. */
+export const safeUrl = (u: string | null | undefined): string => {
+  const v = (u || "").trim();
+  if (/^https?:\/\/[^\s"'<>]+$/i.test(v)) return v;
+  if (/^\/(?!\/)[^\s"'<>]*$/.test(v)) return v;
+  if (/^(mailto|tel):[^\s"'<>]+$/i.test(v)) return v;
+  return "";
+};
+
+/** Attributes for links that leave the site. */
+export const EXT = 'target="_blank" rel="noopener noreferrer"';
