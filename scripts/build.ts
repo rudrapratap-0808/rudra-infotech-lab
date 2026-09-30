@@ -16,7 +16,7 @@ import { projects } from "../src/data/projects.js";
 import { layout } from "../src/components/layout.js";
 import { home, homeJsonLd, homeMeta } from "../src/pages/index.js";
 import { notFound, notFoundMeta, privacy, privacyMeta } from "../src/pages/secondary.js";
-import type { Shot } from "../src/components/work.js";
+import type { Media } from "../src/components/work.js";
 
 const exists = (p: string) => stat(p).then(() => true, () => false);
 
@@ -54,6 +54,8 @@ const minifyJs = (js: string) =>
     .filter(Boolean)
     .join("\n");
 
+const VENDOR = ["gsap.min.js", "ScrollTrigger.min.js"];
+
 async function buildJs() {
   const files = (await walk(CLIENT_OUT)).filter((f) => f.endsWith(".js"));
   const hash = createHash("sha256");
@@ -62,6 +64,11 @@ async function buildJs() {
     const code = minifyJs(await readFile(f, "utf8"));
     hash.update(f + code);
     contents.push([relative(CLIENT_OUT, f), code]);
+  }
+  for (const v of VENDOR) {
+    const code = await readFile(join(ROOT, "vendor/gsap", v), "utf8");
+    hash.update(v + code);
+    contents.push([`vendor/${v}`, code]);
   }
   const id = hash.digest("hex").slice(0, 10);
   const base = `/assets/${id}`;
@@ -89,23 +96,33 @@ async function buildJs() {
   visit("main.js");
   seen.delete("main.js");
   const preload = [...seen].sort().map((r) => `${base}/${r}`);
-  return { base, entry: `${base}/main.js`, preload, count: contents.length };
+  const vendor = VENDOR.map((v) => `${base}/vendor/${v}`);
+  return { base, entry: `${base}/main.js`, preload, vendor, count: contents.length };
 }
 
-/* ── Screenshots (public/work/<slug>.webp|jpg|png) ────────── */
-async function findShots(): Promise<Record<string, Shot>> {
-  const shots: Record<string, Shot> = {};
+/* ── Project media: screenshot > hero imagery > (none → cover) ─ */
+async function findMedia(): Promise<Record<string, Media>> {
+  const media: Record<string, Media> = {};
+  const size = async (rel: string) => imageSize(await readFile(join(PUBLIC, rel)));
   for (const p of projects) {
     for (const ext of ["webp", "jpg", "jpeg", "png"]) {
-      const file = join(PUBLIC, "work", `${p.slug}.${ext}`);
-      if (await exists(file)) {
-        const size = imageSize(await readFile(file));
-        if (size) shots[p.slug] = { src: `/work/${p.slug}.${ext}`, ...size };
+      const rel = `work/${p.slug}.${ext}`;
+      if (await exists(join(PUBLIC, rel))) {
+        const s = await size(rel);
+        if (s) media[p.slug] = { kind: "shot", src: `/${rel}`, ...s };
         break;
       }
     }
+    if (media[p.slug]) continue;
+    const rel = `work/${p.slug}-hero.webp`;
+    if (await exists(join(PUBLIC, rel))) {
+      const s = await size(rel);
+      const smallRel = `work/${p.slug}-hero-800w.webp`;
+      const ss = (await exists(join(PUBLIC, smallRel))) ? await size(smallRel) : null;
+      if (s) media[p.slug] = { kind: "hero", src: `/${rel}`, ...s, ...(ss ? { small: { src: `/${smallRel}`, ...ss } } : {}) };
+    }
   }
-  return shots;
+  return media;
 }
 
 /* ── Main ─────────────────────────────────────────────────── */
@@ -115,27 +132,27 @@ async function main() {
   await mkdir(DIST, { recursive: true });
   if (await exists(PUBLIC)) await cp(PUBLIC, DIST, { recursive: true });
 
-  const [css, js, shots] = await Promise.all([buildCss(), buildJs(), findShots()]);
-  const common = { css, scripts: [js.entry], modulePreload: js.preload };
+  const [css, js, media] = await Promise.all([buildCss(), buildJs(), findMedia()]);
+  const assets = { css, vendor: js.vendor, entry: js.entry, preload: js.preload };
 
   const pages: { path: string; file: string; html: string; sitemap: boolean }[] = [
     {
       path: "/",
       file: "index.html",
       sitemap: true,
-      html: layout({ ...common, ...homeMeta, path: "/", body: home(shots), jsonLd: homeJsonLd() }),
+      html: layout({ assets, ...homeMeta, path: "/", body: home(media), jsonLd: homeJsonLd(), chapter: "home", intro: true }),
     },
     {
       path: "/privacy/",
       file: "privacy/index.html",
       sitemap: true,
-      html: layout({ ...common, ...privacyMeta, path: "/privacy/", body: privacy() }),
+      html: layout({ assets, ...privacyMeta, path: "/privacy/", body: privacy(), chapter: "home" }),
     },
     {
       path: "/404",
       file: "404.html",
       sitemap: false,
-      html: layout({ ...common, ...notFoundMeta, path: "/404", body: notFound(), noindex: true }),
+      html: layout({ assets, ...notFoundMeta, path: "/404", body: notFound(), noindex: true, chapter: "home" }),
     },
   ];
 
@@ -185,13 +202,15 @@ async function main() {
   let jsTotal = 0;
   let jsGz = 0;
   for (const f of await walk(join(DIST, "assets"))) {
+    if (f.endsWith(".map")) continue;
     const c = await readFile(f);
     jsTotal += c.length;
     jsGz += gzipSync(c).length;
   }
   console.log(`  ${`js (${js.count} modules)`.padEnd(20)} ${kb(jsTotal).padStart(9)}  (gzip ${kb(jsGz)})`);
   console.log(`  ${"css (inlined)".padEnd(20)} ${kb(css.length).padStart(9)}  (gzip ${kb(gzipSync(css).length)})`);
-  console.log(`  screenshots found: ${Object.keys(shots).length}/${projects.length}`);
+  const kinds = Object.values(media).map((m) => m.kind);
+  console.log(`  project media: ${kinds.filter((k) => k === "shot").length} screenshots, ${kinds.filter((k) => k === "hero").length} hero images, ${projects.length - kinds.length} covers`);
   console.log(`  site url: ${site.url}  (from ${site.urlSource})`);
   if (site.url === PLACEHOLDER_URL) {
     console.warn(`\n  ⚠  site.url is still a placeholder (${site.url}).\n     On Vercel this is detected automatically; elsewhere set SITE_URL=https://yourdomain.com.`);

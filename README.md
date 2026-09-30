@@ -1,166 +1,98 @@
 # Rudra InfoTech Lab — Website
 
-A custom agency website for **Rudra InfoTech Lab (RITL)**. It's a static site built with TypeScript and has no runtime dependencies.
+The studio website of **Rudra InfoTech Lab (RITL)**, a web design and development lab.
+
+It's a static TypeScript build. Motion uses **GSAP + ScrollTrigger + Lenis**, stored in the repo so builds never depend on a package registry. The fonts are self-hosted, and there's no framework runtime.
 
 ```bash
-npm run build     # → dist/  (static HTML, inlined CSS, ~13 KB gzipped JS)
-npm run serve     # preview at http://localhost:4321
-npm run qa        # headless-Chrome audit + screenshots (.build/qa)
-npm run og        # regenerate public/og.png + app icons
-npm run screenshots  # capture real portfolio screenshots (needs internet)
+npm run build        # → dist/  (static HTML, inlined CSS, hashed JS)
+npm run serve        # preview at http://localhost:4321
+npm run qa           # headless-Chrome audit + screenshots at 4 viewports (.build/qa)
+npm run og           # regenerate public/og.png + app icons
+npm run images       # re-crop project imagery from .imagery/ → public/work/*.webp
+npm run screenshots  # capture real screenshots of the live project sites (needs internet)
 ```
 
-## Deploy to Vercel
+## Deploy (Vercel)
 
-`vercel.json` already sets the build command, output directory, trailing-slash URLs, long-term caching for hashed assets, and security headers. No settings need changing on Vercel.
+`vercel.json` sets the build command, `dist` output, trailing-slash URLs, caching (hashed JS and fonts are immutable) and security headers.
 
-**Git (recommended). Every push to `main` deploys to production, and every PR gets a preview URL.**
-1. Push this folder to a GitHub, GitLab or Bitbucket repository.
-2. Go to [vercel.com/new](https://vercel.com/new) → **Import** the repo → **Deploy**. Leave the framework preset as **Other**; `vercel.json` handles everything else.
+- **Git:** push to `main` and Vercel deploys. Every PR gets a preview URL.
+- **CLI:** `npx vercel --prod`.
 
-**CLI.** From this folder, run `npx vercel` for a preview, then `npx vercel --prod`.
+Canonical, sitemap and OG URLs come from Vercel's production domain automatically (`VERCEL_PROJECT_PRODUCTION_URL`). Set `SITE_URL` to override.
 
-On Vercel, the canonical URL, sitemap and OG image URLs are generated from your production domain automatically. The build reads it from `VERCEL_PROJECT_PRODUCTION_URL`: your custom domain once you add one, otherwise `*.vercel.app`. To override it, set `SITE_URL`.
-
-Optional **Project → Settings → Environment Variables**:
+Optional environment variables:
 
 | Variable | Purpose |
 |---|---|
-| `FORM_ENDPOINT` | Contact form endpoint (see [Contact form](#contact-form)). Redeploy after setting it |
-| `SITE_URL` | Force a specific canonical domain |
+| `FORM_ENDPOINT` | Where the project brief form posts (Formspree, Web3Forms, …). Redeploy after setting |
+| `SITE_URL` | Force a canonical domain |
 
-**Other static hosts:** build command `npm run build`, output directory `dist`, and set `SITE_URL`.
-
----
-
-## Before you deploy (checklist)
+## Before you share the site
 
 | What | Where |
 |---|---|
-| Real domain | Automatic on Vercel. Elsewhere, set `SITE_URL=https://yourdomain.com`. It's used for the canonical URL, sitemap, robots, OG and schema tags |
-| Contact details | `site.contact` (email, phone, WhatsApp, location). Empty values are hidden everywhere |
-| Form delivery | `site.form.endpoint` or the `FORM_ENDPOINT` env var. See [Contact form](#contact-form) |
-| Social links | `site.social`. Only links that have an `href` are shown |
-| Portfolio copy | `src/data/projects.ts`. See the note below |
-| Budget ranges / tech stack | `src/data/content.ts` |
+| Form delivery | `FORM_ENDPOINT`, or `site.contact.whatsapp` / `site.contact.email` in `src/data/site.ts`. Until one is set, submissions show an error |
+| Contact details, socials | `src/data/site.ts`. Empty values are hidden everywhere |
+| MightyMindz.in | No source repository was available, so it has a neutral description and a typographic cover. Add real details in `src/data/projects.ts` |
+| Live screenshots | Optional: `npm run screenshots` saves `public/work/<slug>.png`, and the frame label switches to **LIVE BUILD** |
 
-The build prints warnings while the domain or form delivery is still unset.
+### About the project imagery and facts
 
-### About the portfolio entries
-The five project sites **couldn't be reached from the build environment**, so none of their details could be checked. Their descriptions are neutral on purpose and `tags` is left empty. Please replace them with real details.
+The descriptions, tags and accent colours for Dotaanke, RojgarLelo, Sarkar2.0 and Rahul Construction were checked against each project's own repository: page titles, meta descriptions, routes and `package.json`.
 
-Until real screenshots exist, each project shows a generated browser-frame preview. To use real ones:
+The frames show each site's own hero imagery, labelled **HERO IMAGE**, not a screenshot. RojgarLelo and MightyMindz have no imagery in their repos, so they get typographic covers labelled **COVER**.
 
-- run `npm run screenshots` on a machine with internet access. It checks each site responds, then saves `public/work/<slug>.png`. Or:
-- drop your own image into `public/work/<slug>.(webp|jpg|png)`.
+## Design system — "Digital Foundry"
 
-The build finds these images automatically, reads their dimensions (so the layout doesn't shift) and lazy-loads them.
+Bold Swiss editorial × creative development studio.
 
----
+**Colour.** Each section uses one environment:
 
-## 1. Creative direction
+| Colour | Hex | Used in |
+|---|---|---|
+| Paper | `#F1EEE6` | Hero, why, the lab |
+| Ink | `#0C0C0C` | Philosophy, work, manifesto, footer |
+| Rudra Orange | `#FF4B18` | Process, contact, hero shape |
+| Electric Blue | `#3155FF` | Services |
+| Acid | `#DFFF36` | Toolkit, work metadata, availability |
+| Soft Grey | `#B7B5AE` | Metadata on ink |
 
-**"The digital lab."** The site should feel like a precise, experimental studio, not an agency template.
+Surfaces are flat colour with 1px rules and a 3.5% grain. Gradients are used only to draw hard-edged rules.
 
-- **Near-black surfaces with warm off-white ink.** One accent colour, *Ember* `#ff6b2c`, is a nod to Rudra: fire, storm, energy. There's no generic SaaS blue and no neon.
-- **Editorial type.** Big, tightly tracked Geist headlines are paired with *Instrument Serif italics* for the emphasised words. Geist Mono labels such as `[02] — Selected Work` give it a lab-notebook feel.
-- **The mark.** The trident is abstracted into a signal glyph, with an ember "live" dot on top.
-- **Signature moments:**
-  - an interactive dot grid in the hero that bends into a wire mesh around the cursor
-  - a "build console" in the hero
-  - statement words that light up as you scroll
-  - a process counter that ticks through the stages
-  - a giant footer wordmark whose letters lift and glow under the cursor
-- **Restraint.** The page has hairlines instead of boxes and very few cards. The grain overlay is subtle, and every animation reinforces the page hierarchy.
+**Type** — each font has one job:
 
-## 2. Information architecture
+- **Archivo Black**: statements (−0.055em tracking, 0.8 line height).
+- **Inter Tight** 500–700: communication.
+- **Instrument Serif**: emotional statements, used sparingly.
+- **IBM Plex Mono**: the lab's technical labels.
 
-```
-/            Home
-  #top         Hero — headline, Start a Project / View Our Work
-  #philosophy  01 Statement — "digital first impression" + 4 pillars
-  #work        02 Selected Work — 5 large showcases
-  #services    03 Services — interactive tabs (desktop) / editorial list (mobile)
-  #why         04 Why RITL — 7 principles + CTA cell
-  #process     05 Process — 6 scroll-driven stages
-  #stack       06 Toolkit — marquee + accessible list
-  #about       07 About — studio story
-  (cta)        Pre-footer CTA — "Have an idea? Let's put it on the web."
-  #contact     08 Contact — lead form
-/privacy/    Privacy note (linked from the form)
-/404         Not-found page
-```
+The Latin subsets have no ↗ or → glyphs, so all arrows are inline SVG.
 
-## 3. Design system
+**Grid.** 12 columns, with 40 / 24 / 16px outer margins and a 20px gutter. Small text sits on the grid. Giant type is allowed to break out of it and crop at the viewport edges.
 
-All tokens live in `src/styles/01-tokens.css`.
+**Section themes.** `data-theme="paper|ink|blue|orange|acid"` sets each section's colours, focus-ring colour and hairlines. The fixed nav hit-tests what's under it and switches between paper and ink. It also shows the current chapter.
 
-- **Colour:** `--bg #07070a` → `--bg-3`, ink `--ink #efebe4` / `--ink-2` / `--muted` / `--faint`, hairlines `--line` (9%) / `--line-2` (16%) / `--line-3` (30%), and one accent, `--ember`.
-- **Type:** Geist (sans), Instrument Serif (italic accents) and Geist Mono (labels).
-  - Sizes are fluid with `clamp()`: `--t-hero`, `--t-h1`, `--t-h2`, `--t-h3`, `--t-lg`.
-  - To use a serif accent, wrap words in `*asterisks*` inside any heading string.
-- **Space:** fluid `--gutter`, `--section` rhythm, a 12-column grid, and a max width of 1440px.
-- **Motion:**
-  - one easing curve, `--ease` (expo-out)
-  - masked word reveals, a 28px fade-up for reveals, magnetic buttons, and a fill that rises through buttons
-  - in-page links scroll smoothly, and page-to-page navigation uses View Transitions (in browsers that support them)
-- **Accessibility:** visible ember focus rings and a skip link. Semantic landmarks, with one `h1` per page and no skipped heading levels. The services section follows the ARIA tabs pattern. The mobile menu traps focus. Form errors are announced through ARIA. The site works without JS. Reduced-motion users get every piece of content with no motion, and the setting is tracked live.
-
-## 4. Architecture
+## Architecture
 
 ```
-src/
-  data/          ← content + config (edit these, not the components)
-    site.ts        brand, URL, contact, form, socials, nav
-    projects.ts    portfolio
-    content.ts     services, principles, process, tech, form options
-  components/    ← server-rendered HTML components (typed functions → strings)
-    layout.ts      <head>: SEO, OG/Twitter, JSON-LD, fonts, inlined CSS
-    nav.ts footer.ts hero.ts work.ts services.ts process.ts contact.ts sections.ts ui.ts icons.ts
-  pages/         ← page compositions + per-page meta/schema
-  styles/        ← CSS, concatenated in filename order and minified
-  client/        ← progressive-enhancement TypeScript (ES modules)
-    lib/loop.ts    one rAF-batched scroll/resize scheduler shared by all modules
-    modules/       nav, menu, anchors, reveal, cursor, magnetic, hero-canvas (lazy),
-                   scroll-effects, services, form, footer
-scripts/         ← build, serve, qa, og, screenshots (Node, zero deps)
-public/          ← copied as-is (favicons, og.png, work/ screenshots)
+src/data/        content + config (site, projects, services, process, toolkit, about)
+src/components/  server-rendered HTML (hero, philosophy, work, services, sections, contact, footer, nav, symbols, ui)
+src/pages/       page composition + meta + JSON-LD
+src/styles/      00-fonts … 08-motion (concatenated, minified, inlined)
+src/client/      core (Lenis + ScrollTrigger), chrome (nav/menu/cursor/anchors), intro,
+                 scenes (all scroll choreography), widgets (planes, why, toolkit lanes), form
+src/client/vendor/lenis   Lenis 1.3.26 source (MIT)
+vendor/gsap      GSAP 3.15.0 dist + types (GSAP standard "no charge" license)
+public/fonts     self-hosted WOFF2 + OFL licences
+scripts/         build, serve, qa (CDP), og, images, screenshots
 ```
 
-**Why not Next.js?** Next.js + Tailwind was the preferred stack, but this build environment had no access to the npm registry, so no frameworks could be installed. The site is a single marketing page with no server-side data, so a static TypeScript generator is actually a good fit:
+**Motion.**
 
-- 0 KB framework runtime and about 13 KB of gzipped JS
-- inlined critical CSS
-- no hydration cost
-
-The components are plain typed functions with content kept separate, so porting to Next.js later is simple: each `components/*.ts` maps to a React component, `src/data` imports unchanged, and `src/client/modules` become `useEffect` hooks.
-
-## Contact form
-
-Validation covers required fields, email and phone formats, and a minimum length for project details. Errors appear inline and are also announced to screen readers. The form also has loading, success and error states.
-
-Spam protection has three layers:
-
-- a hidden honeypot field
-- a minimum fill time (anything faster than 3 s is silently dropped)
-- a 60-second client-side cooldown
-
-For stronger protection, add Cloudflare Turnstile or hCaptcha on your endpoint.
-
-The form tries delivery methods in this order:
-
-1. **`form.endpoint`**: a JSON `POST` with `{ name, email, phone, company, type, budget, details, subject, page, ...form.extra }`.
-   - Formspree: `endpoint: "https://formspree.io/f/xxxx"`
-   - Web3Forms: `endpoint: "https://api.web3forms.com/submit"` with `extra: { access_key: "…" }`
-2. **`contact.whatsapp`**: opens WhatsApp with the brief already written.
-3. **`contact.email`**: opens the visitor's mail app with the brief already written.
-4. If none of these are set, the visitor sees a friendly error.
-
-## SEO & performance
-
-- Every page has its own title and meta description, plus canonical, Open Graph and Twitter tags, `sitemap.xml`, `robots.txt` and a web manifest. The 404 page is `noindex`.
-- The home page includes `ProfessionalService`, `WebSite` and `ItemList` (portfolio) JSON-LD.
-- Measured in headless Chrome (local): LCP about 70–150 ms, CLS 0.
-- The hero canvas loads lazily after idle and pauses when it's off-screen or the tab is hidden.
-- JS module paths are content-hashed, so they can be cached with `immutable`, and the whole static import graph is `modulepreload`ed.
-- Fonts come from Google Fonts with `display=swap` and don't block rendering. For the best privacy and performance you could self-host them (Geist, Geist Mono, Instrument Serif).
+- **Scrolling:** one Lenis instance runs on GSAP's ticker and drives ScrollTrigger.
+- **Desktop (≥1025px, `html.stage`):** the hero, work reel, services and process get pinned stages, set up with `gsap.matchMedia`.
+- **Smaller screens:** unpinned, lighter motion.
+- **Reduced motion or no JS:** every chapter is a complete static layout with the same composition and colours, and no movement.
+- **Custom cursor (fine pointers only):** 7px dot, with VIEW / VISIT / GO / DRAG / BUILD labels.

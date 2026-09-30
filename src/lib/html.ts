@@ -24,28 +24,28 @@ export const attrs = (o: Record<string, string | number | boolean | undefined | 
     .map(([k, v]) => (v === true ? k : `${k}="${esc(v as string)}"`))
     .join(" ");
 
-/**
- * Splits a string into masked words for the reveal animation.
- * Wrap words in *asterisks* to render them as the serif italic accent.
- */
-export const splitWords = (text: string, cls = "w", offset = 0): string => {
-  let open = false;
-  return text
-    .split(" ")
-    .map((raw, i) => {
-      const starts = raw.startsWith("*");
-      if (starts) open = true;
-      const isAccent = open;
-      if (raw.replace(/^\*/, "").includes("*")) open = false;
-      const word = raw.replace(/\*/g, "");
-      const inner = isAccent ? `<em>${esc(word)}</em>` : esc(word);
-      return `<span class="${cls}"><span style="--i:${i + offset}">${inner}</span></span>`;
-    })
-    .join(" ");
-};
-
-/** Renders *accent* markers as <em> without splitting. */
-export const accent = (text: string): string => esc(text).replace(/\*(.+?)\*/g, "<em>$1</em>");
-
 export const slugify = (s: string): string =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+/** Visually hidden text for screen readers. */
+export const sr = (text: string): string => `<span class="sr-only">${esc(text)}</span>`;
+
+/**
+ * One span per character (for letter-level motion). Spaces become fixed-width gaps.
+ * Always use inside an aria-hidden wrapper next to an `sr()` copy of the text.
+ */
+export const chars = (text: string, cls = "ch"): string =>
+  [...text]
+    .map((c, i) =>
+      c === " "
+        ? `<span class="${cls} ${cls}--sp" style="--i:${i}"> </span>`
+        : `<span class="${cls}" style="--i:${i}">${esc(c)}</span>`
+    )
+    .join("");
+
+/** A masked line: outer clips, inner moves. */
+export const line = (inner: string, cls = "ln"): string =>
+  `<span class="${cls}"><span class="${cls}__i">${inner}</span></span>`;
+
+/** Zero-padded index: 1 → "01". */
+export const nn = (n: number): string => String(n).padStart(2, "0");

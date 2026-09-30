@@ -2,7 +2,7 @@
   "name": "rudra-infotech-lab",
   "version": "1.0.0",
   "private": true,
-  "description": "Rudra InfoTech Lab — agency website. Zero-dependency TypeScript static site generator.",
+  "description": "Rudra InfoTech Lab \u2014 studio website. Static TypeScript build with GSAP, ScrollTrigger and Lenis (vendored).",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -14,7 +14,8 @@
     "screenshots": "tsc -p tsconfig.json && node .build/scripts/screenshots.js",
     "og": "tsc -p tsconfig.json && node .build/scripts/og.js",
     "qa": "npm run build && node .build/scripts/qa.js",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit",
+    "images": "tsc -p tsconfig.json && node .build/scripts/images.js"
   },
   "devDependencies": {
     "typescript": "~5.9.2"

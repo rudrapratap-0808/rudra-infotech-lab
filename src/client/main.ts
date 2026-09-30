@@ -1,18 +1,17 @@
 /**
  * Rudra InfoTech Lab — client entry.
- * Everything is progressive enhancement: the site is fully usable without JS.
+ * Progressive enhancement: every chapter is a complete static layout without JS;
+ * GSAP + ScrollTrigger + Lenis add the choreography when available and allowed.
  */
-import { $, onIdle } from "./lib/dom.js";
-import { initAnchors } from "./modules/anchors.js";
-import { initCursor } from "./modules/cursor.js";
-import { initFooter } from "./modules/footer.js";
-import { initForm } from "./modules/form.js";
-import { initMagnetic } from "./modules/magnetic.js";
-import { initMenu } from "./modules/menu.js";
-import { initNav } from "./modules/nav.js";
-import { initReveal } from "./modules/reveal.js";
-import { initCtaOrb, initProcess, initScrub, initSpotlight, initWork } from "./modules/scroll-effects.js";
-import { initServices } from "./modules/services.js";
+import { initAnchors, initCursor, initFooter, initMenu, initNav } from "./chrome.js";
+import { hasGsap, initScroll, lenis, reduced, root } from "./core.js";
+import { initForm } from "./form.js";
+import { intro } from "./intro.js";
+import { initScenes } from "./scenes.js";
+import { initLanes, initPlanes, initViz, initWhy } from "./widgets.js";
+
+const w = window as unknown as { __ritl?: Record<string, unknown> };
+w.__ritl = { booted: true };
 
 const safe = (name: string, fn: () => void) => {
   try {
@@ -22,28 +21,46 @@ const safe = (name: string, fn: () => void) => {
   }
 };
 
-safe("reveal", initReveal);
+const fx = hasGsap() && !reduced();
+if (fx) {
+  gsap.registerPlugin(ScrollTrigger);
+  root.classList.add("fx");
+  safe("scroll", initScroll);
+  w.__ritl.lenis = lenis;
+  w.__ritl.ScrollTrigger = ScrollTrigger;
+} else {
+  root.classList.remove("intro");
+  document.querySelector("[data-preloader]")?.remove();
+}
+
 safe("nav", initNav);
 safe("menu", initMenu);
 safe("anchors", initAnchors);
-safe("services", initServices);
 safe("form", initForm);
-safe("scrub", initScrub);
-safe("process", initProcess);
-safe("work", initWork);
+safe("why", initWhy);
+safe("lanes", initLanes);
+safe("viz", initViz);
 safe("footer", initFooter);
 
-// Pointer-only polish + the hero canvas load after first paint.
-onIdle(() => {
+if (fx) {
+  let done: () => void = () => {};
+  const introDone = new Promise<void>((r) => (done = r));
+  safe("scenes", () => initScenes(introDone));
+  safe("planes", initPlanes);
   safe("cursor", initCursor);
-  safe("magnetic", initMagnetic);
-  safe("spotlight", initSpotlight);
-  safe("cta", initCtaOrb);
-  const canvas = $<HTMLCanvasElement>("[data-hero-canvas]");
-  const hero = $("[data-hero]");
-  if (canvas && hero) {
-    import("./modules/hero-canvas.js")
-      .then((m) => m.initHeroCanvas(canvas, hero))
-      .catch((err) => console.error("[ritl:hero]", err));
-  }
-}, 600);
+  intro()
+    .catch((err) => {
+      console.error("[ritl:intro]", err);
+      root.classList.remove("intro");
+      document.querySelector("[data-preloader]")?.remove();
+      lenis?.start();
+    })
+    .finally(() => {
+      done();
+      w.__ritl!.ready = true;
+    });
+  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  addEventListener("load", () => ScrollTrigger.refresh());
+} else {
+  w.__ritl.ready = true;
+}

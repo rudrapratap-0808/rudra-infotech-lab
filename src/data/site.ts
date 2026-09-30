@@ -40,14 +40,18 @@ export const site = {
   urlSource: resolved.source,
   locale: "en_IN",
   lang: "en-IN",
-  themeColor: "#07070a",
+  /** Browser UI colour — matches the PAPER hero + preloader. */
+  themeColor: "#f1eee6",
 
   tagline: "Websites that make businesses impossible to ignore.",
   description:
     "Rudra InfoTech Lab is a web development agency that designs and builds fast, responsive, business-focused websites — from business sites and landing pages to e-commerce and custom web development.",
 
-  /** Small status pill in the hero. Set to "" to hide. */
-  availability: "Taking on new projects",
+  /** Availability indicator (nav, hero, footer). Set to "" to hide. */
+  availability: "Available for projects",
+
+  /** Technical metadata row at the top of the hero. */
+  heroMeta: ["/ Digital foundry", "India / Worldwide", `Available / ${new Date().getFullYear()}`],
 
   contact: {
     /** TODO: add your real details. Empty values are hidden everywhere. */
@@ -76,6 +80,7 @@ export const site = {
   ] as SocialLink[],
 };
 
+/** Full navigation (menu overlay + footer). */
 export const nav = [
   { label: "Home", href: "/#top" },
   { label: "Work", href: "/#work" },
@@ -84,5 +89,33 @@ export const nav = [
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },
 ];
+
+/** The three links shown in the fixed bar next to MENU. */
+export const navPrimary = [
+  { label: "Work", href: "/#work" },
+  { label: "Services", href: "/#services" },
+  { label: "Contact", href: "/#contact" },
+];
+
+/**
+ * Chapter labels shown in the centre of the nav ("/ 02 WORK") and at the top of each
+ * section. Sub-sections share their chapter's number (philosophy belongs to 01).
+ */
+export const chapters = {
+  home: { n: "01", label: "Home" },
+  philosophy: { n: "01", label: "Philosophy" },
+  work: { n: "02", label: "Work" },
+  services: { n: "03", label: "Services" },
+  why: { n: "04", label: "Why Rudra" },
+  process: { n: "05", label: "Process" },
+  toolkit: { n: "06", label: "Toolkit" },
+  lab: { n: "07", label: "The Lab" },
+  manifesto: { n: "08", label: "Manifesto" },
+  contact: { n: "08", label: "Contact" },
+  end: { n: "—", label: "End" },
+} as const;
+
+export type ChapterKey = keyof typeof chapters;
+export const chapterText = (k: ChapterKey): string => `/ ${chapters[k].n} ${chapters[k].label}`;
 
 export const socialLinks = (): SocialLink[] => site.social.filter((s) => s.href);
