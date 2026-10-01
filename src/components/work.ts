@@ -3,7 +3,7 @@ import { chapters } from "../data/site.js";
 import { D, img, projectPath, reelProjects, type Img } from "../data/store.js";
 import { chars, esc, EXT, html, nn, safeUrl } from "../lib/html.js";
 import { arrow } from "./symbols.js";
-import { chapterAttr } from "./ui.js";
+import { chapterAttr, label } from "./ui.js";
 
 /** Measured Archivo Black widths (em) of known project name bases — used to fit the name line. */
 const NAME_EM: Record<string, number> = {
@@ -69,8 +69,21 @@ export const frameMedia = (p: ProjectRec): { kind: "shot" | "image"; m: Img } | 
   return f ? { kind: "image", m: f } : null;
 };
 
+/** Honest frame labels: photography and typographic covers are never presented as screenshots. */
 export const frameLabel = (fm: ReturnType<typeof frameMedia>) =>
-  !fm ? "Cover / 16:10" : fm.kind === "shot" ? `Live build / ${fm.m.width} × ${fm.m.height}` : "Featured image / 16:10";
+  !fm ? "Typographic cover" : fm.kind === "shot" ? "Screenshot / live site" : "Cover photo";
+
+/**
+ * Project name with safe break opportunities at spaces and CamelCase joins.
+ * overflow-wrap in CSS remains the fallback for a single long CMS-supplied token.
+ */
+export const nameHtml = (name: string): string => {
+  const { base, tld } = splitName(name);
+  const breakable = esc(base)
+    .replace(/(\s+)/g, "$1<wbr>")
+    .replace(/(?<=[a-z0-9])(?=[A-Z][a-z])/g, "<wbr>");
+  return `<span class="proj__base">${breakable}</span>${tld ? `<wbr><span class="proj__tld">${esc(tld)}</span>` : ""}`;
+};
 
 export const altFor = (p: ProjectRec, fm: NonNullable<ReturnType<typeof frameMedia>>) =>
   fm.kind === "shot" ? `Screenshot of the ${p.name} website` : (p.image_alt ?? p.name);
@@ -78,42 +91,39 @@ export const altFor = (p: ProjectRec, fm: NonNullable<ReturnType<typeof frameMed
 const project = (p: ProjectRec, i: number, total: number) => {
   const url = safeUrl(p.live_url);
   const host = url ? hostOf(url) : "";
-  const { base, tld } = splitName(p.name);
   const fm = frameMedia(p);
   const path = projectPath(p);
-  return html`<li class="proj" style="--accent:${esc(accentOf(p))};--nw:${nameEm(p.name)}" data-proj>
+  return html`<li class="proj" style="--accent:${esc(accentOf(p))}" data-proj>
   <article class="proj__in" aria-labelledby="p-${esc(p.slug)}">
     <p class="proj__top mono">
-      <span class="proj__cat">${esc(typeLabel(p))}</span>
-      ${url ? html`<span class="proj__live"><i aria-hidden="true"></i>Live / Production</span>` : ""}
-      <span class="proj__fr" aria-hidden="true">Frame / ${String(i + 3).padStart(3, "0")}</span>
       <span class="proj__of">${nn(i + 1)} / ${nn(total)}</span>
+      <span class="proj__cat">${esc(typeLabel(p))}</span>
+      ${url ? html`<span class="proj__live"><i aria-hidden="true"></i>Live site</span>` : ""}
     </p>
-    <p class="proj__index display" aria-hidden="true"><span class="proj__index-i">${nn(i + 1)}</span></p>
     <div class="proj__info">
+      <h3 class="proj__name" id="p-${esc(p.slug)}">${nameHtml(p.name)}</h3>
+      <p class="proj__summary">${esc(p.short_description)}</p>
       <dl class="proj__spec mono">
-        <div><dt>Type</dt><dd>${esc(p.project_type ? p.project_type : typeLabel(p))}</dd></div>
+        <div><dt>Type</dt><dd>${esc(p.project_type ? typeLabel({ ...p, category: null }) : typeLabel(p))}</dd></div>
         ${p.technologies.length ? html`<div><dt>Built with</dt><dd>${p.technologies.map(esc).join(" · ")}</dd></div>` : ""}
         ${host ? html`<div><dt>Domain</dt><dd>${esc(host)}</dd></div>` : ""}
       </dl>
-      <p class="proj__summary">${esc(p.short_description)}</p>
       ${p.headline ? html`<p class="proj__quote"><span class="mono">Site headline</span><q class="serif">${esc(p.headline)}</q></p>` : ""}
+      <div class="proj__acts">
+        ${url
+          ? html`<a class="proj__visit" href="${esc(url)}" ${EXT} data-cursor="visit">
+          <span class="proj__visit-t">Visit live site</span>${arrow("ne", "proj__visit-a")}<span class="sr-only"> — ${esc(host)} (opens in a new tab)</span>
+        </a>`
+          : ""}
+        <a class="proj__case tlink" href="${path}" data-cursor="go" data-proj-link><span>Case study</span>${arrow("e", "tlink__a")}<span class="sr-only"> — ${esc(p.name)}</span></a>
+      </div>
     </div>
     <a class="proj__media" href="${path}" tabindex="-1" aria-hidden="true" data-cursor="view" data-proj-media>
       <span class="frame">
         <span class="frame__bar mono"><span class="frame__url">${esc(host || p.slug)}</span><span class="frame__lbl">${esc(frameLabel(fm))}</span></span>
-        <span class="frame__view"><span class="frame__img" data-proj-img>${fm ? picture(fm.m, altFor(p, fm)) : cover(p)}</span></span>
+        <span class="frame__view"><span class="frame__img" data-proj-img>${fm ? picture(fm.m, altFor(p, fm), "(min-width: 1025px) 60vw, 100vw") : cover(p)}</span></span>
       </span>
     </a>
-    <h3 class="proj__name" id="p-${esc(p.slug)}"><span class="proj__base">${esc(base)}</span><span class="proj__tld">${esc(tld)}</span></h3>
-    <div class="proj__acts">
-      <a class="proj__case mono" href="${path}" data-cursor="go" data-proj-link><span>Case study</span>${arrow("e")}<span class="sr-only"> — ${esc(p.name)}</span></a>
-      ${url
-        ? html`<a class="proj__visit" href="${esc(url)}" ${EXT} data-cursor="visit">
-        <span class="proj__visit-t">Visit live site</span>${arrow("ne", "proj__visit-a")}<span class="sr-only"> — ${esc(host)} (opens in a new tab)</span>
-      </a>`
-        : ""}
-    </div>
   </article>
 </li>`;
 };
@@ -123,27 +133,20 @@ export const work = () => {
   if (!list.length) return "";
   return html`<section class="work" id="work" aria-labelledby="work-title">
   <header class="wi" data-theme="paper" ${chapterAttr("work")}>
-    <ul class="wi__meta mono" role="list">
-      <li>/ ${chapters.work.n}</li><li>Selected work</li><li>Real projects</li><li>Real domains</li>
-    </ul>
+    <div class="wi__meta">
+      ${label(chapters.work.n, "Selected work")}
+      <p class="mono">${nn(list.length)} live projects</p>
+    </div>
     <h2 class="wi__title display" id="work-title"><span class="sr-only">Selected work</span><span class="wi__word" aria-hidden="true">${chars("WORK")}</span></h2>
     <div class="wi__row grid">
-      <p class="wi__text">${esc(D().content.work.description)}</p>
-      <dl class="wi__spec mono">
-        <div><dt>Count</dt><dd>${nn(list.length)}</dd></div>
-        <div><dt>Status</dt><dd>Live</dd></div>
-        <div><dt>Index</dt><dd><a class="ulink" href="/projects/">All projects</a></dd></div>
-      </dl>
-      <p class="wi__count display" aria-hidden="true">${nn(list.length)}</p>
+      <p class="wi__text lead">${esc(D().content.work.description)}</p>
+      <a class="tlink wi__all" href="/projects/"><span>All projects</span>${arrow("e", "tlink__a")}</a>
     </div>
-    <span class="wi__cover" data-theme="ink" aria-hidden="true" data-wi-cover></span>
   </header>
   <div class="reel" data-theme="ink" ${chapterAttr("work")} data-reel>
-    <span class="reel__rules" aria-hidden="true" data-reel-rules></span>
     <ol class="reel__list" role="list">
       ${list.map((p, i) => project(p, i, list.length))}
     </ol>
-    <span class="reel__sep" aria-hidden="true" data-reel-sep></span>
   </div>
 </section>`;
 };

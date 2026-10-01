@@ -26,7 +26,10 @@ const easeIO = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2
 
 /** Scroll to a Y position or element — eased with Lenis, instant for reduced motion. */
 export function scrollTo(target: number | HTMLElement, opts: { immediate?: boolean; onDone?: () => void } = {}): void {
-  const y = typeof target === "number" ? target : target.getBoundingClientRect().top + scrollY;
+  // Elements honour their CSS scroll-margin-top so destinations never land under the fixed bar.
+  const y = typeof target === "number"
+    ? target
+    : Math.max(0, target.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(target).scrollMarginTop) || 0));
   if (lenis && !opts.immediate) {
     const dist = Math.abs(y - scrollY) / innerHeight;
     lenis.scrollTo(y, { duration: Math.min(2.4, Math.max(0.9, 0.7 + dist * 0.06)), easing: easeIO, onComplete: () => opts.onDone?.() });

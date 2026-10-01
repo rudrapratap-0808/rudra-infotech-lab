@@ -11,12 +11,10 @@ export const why = () => html`<section class="why" id="why" data-theme="paper" $
   <div class="why__head grid">
     ${label(chapters.why.n, "Why Rudra InfoTech Lab", "why__label")}
     <h2 class="why__title" id="why-title">
-      <span class="why__w why__w--1 display"><span class="why__i">Built</span></span>
-      <span class="why__w why__w--2 display"><span class="why__i">with</span></span>
-      <span class="why__w why__w--3 display"><span class="why__i">intent.</span></span>
-      <span class="why__serif serif"><em class="serif">Down to the pixel.</em></span>
+      <span class="why__w display"><span class="why__i">Built with</span></span>
+      <span class="why__row"><span class="why__w display"><span class="why__i">intent.</span></span><span class="why__serif serif"><em class="serif">Down to the pixel.</em></span></span>
     </h2>
-    <p class="why__aside">We're not here to ship pages that merely exist. Every decision — from a font weight to a database query — is made to help your business look sharp and work hard.</p>
+    <p class="why__aside lead">Every decision — from a font weight to a database query — is made to help your business look sharp and work hard.</p>
   </div>
   <ol class="why__list" role="list" data-why-list>
     ${principles.map(
@@ -26,7 +24,6 @@ export const why = () => html`<section class="why" id="why" data-theme="paper" $
         </button></h3>
         <div class="wr__body" id="why-${i}"><div class="wr__inner"><p>${esc(p.body)}</p></div></div>
         ${cropMarks("crop wr__crop")}
-        <span class="wr__dim mono" aria-hidden="true">Row / ${nn(i + 1)}</span>
       </li>`
     )}
     <li class="wr wr--cta">
@@ -60,10 +57,10 @@ export const processSection = () => {
   <div class="proc__stage" data-proc style="--last:${Math.max(1, steps.length - 1)}">
     <header class="proc__head">
       ${label(chapters.process.n, chapters.process.label, "proc__label")}
-      <h2 class="proc__title" id="proc-title">From first call to <em class="serif">go-live.</em></h2>
+      <h2 class="proc__title h2" id="proc-title">From first call to <em class="serif">go-live.</em></h2>
       <p class="proc__aside">${steps.length === 6 ? "Six" : esc(String(steps.length))} clear stages. You always know where your project is, what's next and what we need from you.</p>
     </header>
-    <p class="proc__status mono" aria-hidden="true"><span>Phase / <b data-proc-phase>01</b></span><span>Status / Active</span></p>
+    <p class="proc__status mono" aria-hidden="true"><span>Phase <b data-proc-phase>01</b> / ${nn(steps.length)}</span></p>
     ${viz()}
     <span class="proc__line" aria-hidden="true"><span class="proc__fill" data-proc-fill></span></span>
     <ol class="proc__steps" role="list">
@@ -76,15 +73,14 @@ export const processSection = () => {
         </li>`
       )}
     </ol>
-    <span class="proc__flood" data-theme="acid" aria-hidden="true" data-proc-flood></span>
   </div>
 </section>`;
 };
 
 /* ── 07 TOOLKIT — ACID ────────────────────────────────────── */
-/** Split the toolkit into up to four lanes (wrapping so every lane is full). */
+/** Split the toolkit into two decorative lanes (wrapping so every lane is full). */
 const laneIds = (n: number): number[][] => {
-  const L = n >= 4 ? 4 : n;
+  const L = n >= 2 ? 2 : n;
   const per = Math.ceil(n / L);
   return Array.from({ length: L }, (_, k) => Array.from({ length: per }, (_, j) => (k * per + j) % n));
 };
@@ -95,7 +91,7 @@ const lane = (ids: number[], li: number) => {
     .map((id, k) => {
       const t = tech[id];
       const outline = (li + k) % 2 === 1;
-      return `<span class="kt${outline ? " kt--o" : ""}" data-kt><span class="kt__n mono">/ ${nn(id + 1)} ${esc(t.kind)}</span><span class="kt__t display">${esc(t.name)}</span></span>`;
+      return `<span class="kt${outline ? " kt--o" : ""}"><span class="kt__t display">${esc(t.name)}</span></span>`;
     })
     .join("");
   const copy = `<span class="lane__copy">${items.repeat(Math.max(2, Math.ceil(6 / ids.length)))}</span>`;
@@ -108,13 +104,13 @@ export const toolkit = () => {
   return html`<section class="kit" id="toolkit" data-theme="acid" ${chapterAttr("toolkit")} aria-labelledby="kit-title">
   <header class="kit__head grid">
     ${label(chapters.toolkit.n, chapters.toolkit.label, "kit__label")}
-    <h2 class="kit__title" id="kit-title">Tools of <em class="serif">the lab.</em></h2>
+    <h2 class="kit__title h2" id="kit-title">Tools of <em class="serif">the lab.</em></h2>
     <p class="kit__aside">Modern, proven web technology — picked to fit each project, not out of habit.</p>
   </header>
-  <div class="kit__lanes" aria-hidden="true" data-kit data-cursor="drag">${laneIds(tech.length).map(lane)}</div>
-  <ol class="kit__index mono" role="list" aria-label="Technology stack">
-    ${tech.map((t, i) => html`<li><span>${nn(i + 1)}</span> ${esc(t.name)} <span class="kit__kind">— ${esc(t.kind)}</span></li>`)}
+  <ol class="kit__index" role="list" aria-label="Technology stack">
+    ${tech.map((t, i) => html`<li><span class="kit__n mono">${nn(i + 1)}</span><span class="kit__name">${esc(t.name)}</span><span class="kit__kind mono">${esc(t.kind)}</span></li>`)}
   </ol>
+  <div class="kit__lanes" aria-hidden="true" data-kit>${laneIds(tech.length).map(lane)}</div>
 </section>`;
 };
 
@@ -129,12 +125,10 @@ export const lab = () => {
   return html`<section class="lab" id="about" data-theme="paper" ${chapterAttr("lab")} aria-labelledby="lab-title">
   <div class="lab__grid grid">
     ${label(chapters.lab.n, chapters.lab.label, "lab__label")}
-    <p class="lab__fr mono" aria-hidden="true">Frame / 009</p>
     <h2 class="lab__statement serif" id="lab-title">
       ${[a.statement_1, a.statement_2].filter(Boolean).map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}
     </h2>
     <div class="lab__r" data-lab-r>${monogram()}</div>
-    <p class="lab__name display" aria-hidden="true"><span>Rudra</span><span>InfoTech</span><span>Lab</span></p>
     <div class="lab__text">${paragraphs(a.paragraphs).map((p) => html`<p>${esc(p)}</p>`)}</div>
     ${facts.length ? html`<dl class="lab__facts mono">${facts.map((f) => html`<div><dt>${esc(f.k)}</dt><dd>${esc(f.v)}</dd></div>`)}</dl>` : ""}
   </div>
@@ -143,15 +137,11 @@ export const lab = () => {
 
 /* ── 09 MANIFESTO — INK ───────────────────────────────────── */
 export const manifesto = () => html`<section class="mani" data-theme="ink" ${chapterAttr("manifesto")} aria-labelledby="mani-title">
-  <span class="mani__rules" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-  <h2 class="mani__text" id="mani-title">
-    <span class="sr-only">We don't ship pages. We build presence.</span>
-    <span class="mani__l mani__l--1 display" aria-hidden="true"><span class="mani__i">We don't</span></span>
-    <span class="mani__l mani__l--2 display" aria-hidden="true"><span class="mani__i">Ship</span></span>
-    <span class="mani__l mani__l--3 display" aria-hidden="true"><span class="mani__i">Pages.<i class="mani__strike"></i></span></span>
-    <span class="mani__l mani__l--4 display" aria-hidden="true"><span class="mani__i">We build</span></span>
-    <span class="mani__l mani__l--5 display" aria-hidden="true"><span class="mani__i">Presence.</span></span>
-  </h2>
-  <p class="mani__serif serif"><em class="serif">Something worth remembering.</em></p>
-  <p class="mani__meta mono" aria-hidden="true"><span>RITL</span><span>Build / ${new Date().getFullYear()}</span></p>
+  <div class="mani__in grid">
+    <h2 class="mani__text" id="mani-title">
+      <span class="mani__l display">We don't ship <span class="mani__i">pages.<i class="mani__strike" aria-hidden="true"></i></span></span>
+      <span class="mani__l mani__l--2 display">We build presence.</span>
+    </h2>
+    <p class="mani__sub lead">The people who design your site are the people who build it — so nothing gets lost between the idea and the launch.</p>
+  </div>
 </section>`;

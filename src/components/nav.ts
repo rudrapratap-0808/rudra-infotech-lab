@@ -11,7 +11,7 @@ export const contactHref = (home: boolean): string => (home ? "#contact" : "/con
 const isCurrent = (href: string, path: string) => !href.includes("#") && href !== "/" && path.startsWith(href);
 
 /** Fixed navigation — colour follows the section underneath (see client/chrome.ts). */
-export const navbar = (chapterLabel: string, path: string) => html`<header class="nav" data-nav data-tone="ink">
+export const navbar = (chapterLabel: string, path: string) => html`<header class="nav" data-nav data-surface="paper">
   <a class="nav__brand mono" href="/#top" aria-label="${esc(site.name)} — home" data-cursor="go">
     <span>Rudra</span><span>InfoTech Lab</span>
   </a>

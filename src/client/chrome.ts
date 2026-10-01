@@ -1,44 +1,49 @@
 /** Global chrome: nav colour + chapter, menu, cursor, anchors, footer. */
 import { $, $$, finePointer, hasGsap, lenis, onScroll, reduced, root, scrollTo } from "./core.js";
 
-/* ── Nav: tone + chapter follow whatever is under the bar ─── */
-let override: "ink" | "paper" | null = null;
+/* ── Nav: an opaque bar painted with the theme of the section directly beneath it ─── */
 let menuOpen = false;
 let probeNow: () => void = () => {};
-
-export const navOverride = (tone: "ink" | "paper" | null): void => {
-  if (override === tone) return;
-  override = tone;
-  probeNow();
-};
 
 export function initNav(): void {
   const nav = $("[data-nav]");
   const label = $("[data-nav-chapter]");
   if (!nav || !label) return;
   let chapter = label.textContent || "";
+  let pending = "";
   let queued = false;
+  let timer = 0;
+  let swapping: ReturnType<typeof gsap.timeline> | null = null;
 
+  // Chapter label: debounced so fast scrolling past several chapters doesn't flicker.
   const swap = (text: string) => {
     if (hasGsap() && !reduced()) {
-      gsap.timeline()
-        .to(label, { yPercent: -100, duration: 0.25, ease: "power2.in" })
+      swapping?.kill();
+      swapping = gsap.timeline()
+        .to(label, { yPercent: -100, duration: 0.18, ease: "power2.in" })
         .add(() => { label.textContent = text; })
-        .fromTo(label, { yPercent: 100 }, { yPercent: 0, duration: 0.4, ease: "power3.out" });
+        .fromTo(label, { yPercent: 100 }, { yPercent: 0, duration: 0.3, ease: "power3.out" });
     } else label.textContent = text;
+  };
+  const queueChapter = (c: string) => {
+    if (c === pending) return;
+    pending = c;
+    clearTimeout(timer);
+    timer = window.setTimeout(() => { if (pending !== chapter) { chapter = pending; swap(pending); } }, 140);
   };
 
   const probe = () => {
     queued = false;
-    if (menuOpen) { nav.dataset.tone = "paper"; return; }
-    for (const el of document.elementsFromPoint(innerWidth / 2, Math.min(34, innerHeight / 2))) {
-      if (nav.contains(el) || el.closest(".pre")) continue;
+    if (menuOpen) { nav.dataset.surface = "menu"; return; }
+    // Sample the page just below the bar: that's the surface it visually continues.
+    const y = Math.min(nav.offsetHeight + 2, innerHeight - 1);
+    for (const el of document.elementsFromPoint(innerWidth / 2, y)) {
+      if (nav.contains(el) || el.closest(".pre, .grain, .cursor")) continue;
       const themed = el.closest<HTMLElement>("[data-theme]");
       if (!themed) continue;
-      const theme = themed.dataset.theme;
-      nav.dataset.tone = override ?? (theme === "ink" || theme === "blue" ? "paper" : "ink");
+      nav.dataset.surface = themed.dataset.theme || "paper";
       const c = el.closest<HTMLElement>("[data-chapter]")?.dataset.chapter;
-      if (c && c !== chapter) { chapter = c; swap(c); }
+      if (c) queueChapter(c);
       return;
     }
   };
@@ -67,7 +72,7 @@ export function initMenu(): void {
     if (open) {
       menu.removeAttribute("inert");
       lenis?.stop();
-      if (nav) nav.dataset.tone = "paper";
+      if (nav) nav.dataset.surface = "menu";
       setTimeout(() => $<HTMLElement>("[data-menu-link]", menu)?.focus({ preventScroll: true }), 300);
     } else {
       menu.setAttribute("inert", "");
@@ -145,7 +150,10 @@ export function initCursor(): void {
     const theme = themed?.dataset.theme;
     el.dataset.tone = theme === "ink" || theme === "blue" ? "paper" : "ink";
     const target = t.closest?.<HTMLElement>("[data-cursor]");
-    const next = target?.dataset.cursor || "";
+    // Restrained: only project media previews get a labelled ring;
+    // ordinary buttons/links just enlarge the dot so the control itself stays visible.
+    const raw = target?.dataset.cursor || "";
+    const next = raw === "view" ? raw : "";
     if (next !== state) {
       state = next;
       if (next) { el.dataset.state = next; label.innerHTML = LABELS[next] ?? next; }
