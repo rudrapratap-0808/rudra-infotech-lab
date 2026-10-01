@@ -37,25 +37,18 @@ export async function intro(): Promise<void> {
   gsap.set(R, { clipPath: "inset(100% 0% 0% 0%)" });
 
   // Hero targets start hidden (they are covered by the preloader until now).
-  const heroChars = $$(".hero__w--rudra .ch").slice(1);
-  const firstR = $(".hero__w--rudra .ch");
-  const infotech = $$(".hero__w--infotech .ch");
-  const lab = $$(".hero__w--lab .ch");
-  const serif = $$("[data-hero-serif] .ln__i");
-  const metas = $$("[data-hero-meta] > span");
-  const copy = $$("[data-hero-copy] > *");
-  const rect = $("[data-hero-rect]");
-  const planes = $("[data-planes]");
-  const foot = $("[data-hero-foot]");
+  const heroChars = $$(".hero__rudra .ch").slice(1);
+  const firstR = $(".hero__rudra .ch");
+  const lines = $$("[data-hero-lockup] .ln__i, [data-hero-serif] .ln__i");
+  const panel = $("[data-hero-panel]");
+  const copy = $$("[data-hero-copy] > *, .hero__meta");
+  const visual = $("[data-hero-visual]");
   gsap.set(firstR, { opacity: 0 });
   gsap.set(heroChars, { clipPath: "inset(0% 100% 0% 0%)" });
-  gsap.set([...infotech, ...lab], { yPercent: 105, clipPath: "inset(0% 0% 0% 0%)" });
-  gsap.set(serif, { yPercent: 110 });
-  gsap.set(metas, { yPercent: 110 });
-  gsap.set(copy, { clipPath: "inset(0% 0% 100% 0%)" });
-  if (rect) gsap.set(rect, { clipPath: "inset(100% 0% 0% 0%)" });
-  if (planes) gsap.set(planes, { opacity: 0, yPercent: 12 });
-  if (foot) gsap.set(foot, { opacity: 0 });
+  if (lines.length) gsap.set(lines, { yPercent: 110 });
+  if (panel) gsap.set(panel, { clipPath: "inset(100% 0% 0% 0%)" });
+  if (copy.length) gsap.set(copy, { opacity: 0, y: 18 });
+  if (visual) gsap.set(visual, { opacity: 0, y: 30 });
 
   const ready = Promise.race([Promise.all([document.fonts.ready, loaded()]), wait(2800)]);
   const p = { v: 0 };
@@ -85,24 +78,27 @@ export async function intro(): Promise<void> {
   tl.to(bg, { opacity: 0, duration: 0.35, ease: "power1.out" }, 0.45)
     .to(R, { x: to.left - from.left, y: to.top - from.top, scale: s, duration: 1.0 }, 0)
     .to(cols, { opacity: 0, duration: 0.6, ease: "power1.out" }, 0.9)
-    .to(heroChars, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, stagger: 0.06, ease: "power4.out" }, 0.82)
-    .to(infotech, { yPercent: 0, duration: 0.8, stagger: 0.03, ease: "power4.out" }, 0.85)
-    .to(lab, { yPercent: 0, duration: 0.9, stagger: 0.05, ease: "power4.out" }, 0.9)
-    .to(serif, { yPercent: 0, duration: 0.8, ease: "power4.out" }, 1.05)
-    .to(metas, { yPercent: 0, duration: 0.6, stagger: 0.04, ease: "power3.out" }, 1.0);
-  if (rect) tl.to(rect, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.9, ease: "power3.inOut" }, 0.8);
-  if (planes) tl.to(planes, { opacity: 1, yPercent: 0, duration: 1.0, ease: "power3.out" }, 1.05);
-  tl.to(copy, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, stagger: 0.07, ease: "power3.out" }, 1.15);
-  if (foot) tl.to(foot, { opacity: 1, duration: 0.5 }, 1.4);
+    .to(heroChars, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, stagger: 0.06, ease: "power4.out" }, 0.82);
+  if (lines.length) tl.to(lines, { yPercent: 0, duration: 0.8, stagger: 0.06, ease: "power4.out" }, 0.9);
+  if (panel) tl.to(panel, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.75, ease: "power3.inOut" }, 0.85);
+  if (copy.length) tl.to(copy, { opacity: 1, y: 0, duration: 0.6, stagger: 0.06, ease: "power3.out" }, 1.15);
+  if (visual) tl.to(visual, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" }, 1.2);
   tl.add(() => {
     gsap.set(firstR, { opacity: 1 });
     pre.remove();
   }, 1.01);
   await tl.then();
 
-  gsap.set([...heroChars, ...infotech, ...lab, ...copy], { clearProps: "clipPath" });
-  if (rect) gsap.set(rect, { clearProps: "clipPath" });
+  gsap.set([...heroChars, ...lines, ...copy], { clearProps: "clipPath,opacity,transform" });
+  if (panel) gsap.set(panel, { clearProps: "clipPath" });
+  if (visual) gsap.set(visual, { clearProps: "opacity,transform" });
   root.classList.remove("intro");
   lenis?.start();
   ScrollTrigger.refresh();
+}
+
+/** Failsafe: if the intro is interrupted, never leave hero content hidden. */
+export function revealHero(): void {
+  const els = $$(".hero__rudra .ch, [data-hero-lockup] .ln__i, [data-hero-serif] .ln__i, [data-hero-panel], [data-hero-copy] > *, .hero__meta, [data-hero-visual]");
+  if (els.length) gsap.set(els, { clearProps: "clipPath,opacity,transform" });
 }

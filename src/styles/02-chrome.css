@@ -1,11 +1,18 @@
 /* ============================================================
    NAV — small, fixed, recolours with the section underneath
    ============================================================ */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);align-items:center;padding-inline:var(--m);color:var(--nav-fg);pointer-events:none;transition:color .35s var(--e-ui);--nav-fg:var(--ink)}
-.nav[data-tone="paper"]{--nav-fg:var(--paper)}
-.nav a,.nav button{pointer-events:auto}
-.nav__brand{grid-column:1/span 2;display:flex;flex-direction:column;font-weight:500;letter-spacing:.14em;line-height:1.2;width:max-content}
-.nav__status{grid-column:3/span 3}
+/* The bar is an opaque surface painted in the colours of the section beneath it
+   (data-surface, set by client/chrome.ts), so moving content can never erase it. */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);align-items:center;padding-inline:var(--m);background:var(--nav-bg);color:var(--nav-fg);box-shadow:0 1px 0 var(--nav-hair);transition:color .3s var(--e-ui),background-color .3s var(--e-ui),box-shadow .3s var(--e-ui);
+  --nav-bg:var(--paper);--nav-fg:var(--ink);--nav-hair:rgb(12 12 12 / .14)}
+.nav[data-surface="ink"]{--nav-bg:var(--ink);--nav-fg:var(--paper);--nav-hair:rgb(241 238 230 / .16)}
+.nav[data-surface="blue"]{--nav-bg:var(--blue);--nav-fg:var(--paper);--nav-hair:rgb(241 238 230 / .3)}
+.nav[data-surface="orange"]{--nav-bg:var(--orange);--nav-fg:var(--ink);--nav-hair:rgb(12 12 12 / .22)}
+.nav[data-surface="acid"]{--nav-bg:var(--acid);--nav-fg:var(--ink);--nav-hair:rgb(12 12 12 / .18)}
+.nav[data-surface="menu"]{--nav-bg:transparent;--nav-fg:var(--paper);--nav-hair:transparent}
+.nav :focus-visible{outline-color:currentColor}
+.nav__brand{grid-column:1/span 3;display:flex;flex-direction:column;justify-content:center;min-height:44px;font-weight:500;letter-spacing:.14em;line-height:1.25;width:max-content;padding:6px 0}
+.nav__status{grid-column:4/span 2}
 .nav__chapter{grid-column:6/span 2;justify-self:center;height:1.4em;overflow:hidden;white-space:nowrap;font-weight:500}
 .nav__chapter-i{display:block}
 .nav__links{grid-column:8/span 4;justify-self:end}
@@ -21,9 +28,11 @@
 .nav__menu[aria-expanded="true"] .nav__menu-ico i{top:calc(50% - .75px)}
 .nav__menu[aria-expanded="true"] .nav__menu-ico i:first-child{transform:rotate(45deg)}
 .nav__menu[aria-expanded="true"] .nav__menu-ico i:last-child{transform:rotate(-45deg)}
+.nav__menu{min-width:44px;min-height:44px;justify-content:flex-end}
+@media (max-width:1279px){.nav__status{display:none}.nav__chapter{grid-column:4/span 3;justify-self:start}}
 @media (max-width:1024px){
-  .nav__links,.nav__status{display:none}
-  .nav__chapter{grid-column:5/span 4}
+  .nav__links{display:none}
+  .nav__chapter{grid-column:5/span 4;justify-self:center}
 }
 @media (max-width:600px){.nav__chapter{display:none}}
 

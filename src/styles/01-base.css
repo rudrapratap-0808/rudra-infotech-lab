@@ -10,16 +10,25 @@
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --m:40px;--g:20px;--nav-h:64px;
   --col:calc((100vw - 2 * var(--m) - 11 * var(--g)) / 12);
-  --t-body:clamp(16px,.9rem + .25vw,19px);
-  --t-sub:clamp(26px,1rem + 2vw,48px);
-  --t-serif:clamp(55px,8vw,150px);
-  --t-mono:11px;
+  /* Type scale — one signature size (hero/footer RUDRA) lives in its own section */
+  --t-display:clamp(56px,4.2vw + 2rem,148px);  /* section display (Archivo) */
+  --t-h2:clamp(30px,1.1rem + 2.2vw,60px);      /* section headings (Inter Tight / serif mix) */
+  --t-h3:clamp(24px,.9rem + 1.5vw,44px);       /* row / card titles (Archivo) */
+  --t-lead:clamp(19px,.95rem + .55vw,25px);    /* supporting statements */
+  --t-body:clamp(16px,.92rem + .2vw,18px);
+  --t-small:15px;
+  --t-sub:var(--t-h2);
+  --t-serif:clamp(48px,6.2vw,112px);
+  --t-mono:12px;
+  /* Spacing scale */
+  --s-1:8px;--s-2:16px;--s-3:24px;--s-4:40px;--s-5:64px;--s-6:96px;
+  --sec:clamp(80px,6vw + 40px,152px);          /* section padding-block */
   --e-io:cubic-bezier(.65,0,.35,1);
   --e-out:cubic-bezier(.25,1,.5,1);
   --e-ui:cubic-bezier(.5,1,.89,1);
 }
 @media (max-width:1024px){:root{--m:24px;--g:16px;--nav-h:60px}}
-@media (max-width:600px){:root{--m:16px;--g:12px;--nav-h:56px;--t-mono:10px}}
+@media (max-width:600px){:root{--m:16px;--g:12px;--nav-h:56px;--t-mono:11px}}
 
 /* Section themes */
 [data-theme]{background-color:var(--bg);color:var(--fg)}
@@ -31,8 +40,9 @@
 
 *,*::before,*::after{box-sizing:border-box}
 *{margin:0}
-html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{font-family:var(--f-sans);font-size:var(--t-body);font-weight:500;line-height:1.42;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
+html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:calc(var(--nav-h) + 16px)}
+[id]{scroll-margin-top:var(--nav-h)}
+body{font-family:var(--f-sans);font-size:var(--t-body);font-weight:400;line-height:1.55;letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
 img,svg{display:block;max-width:100%}
 img{height:auto}
 a{color:inherit;text-decoration:none}
@@ -61,6 +71,11 @@ html.lenis,html.lenis body{height:auto}
 .serif{font-family:var(--f-serif);font-weight:400;line-height:.9;letter-spacing:-.02em}
 .mono{font-family:var(--f-mono);font-size:var(--t-mono);font-weight:400;letter-spacing:.1em;text-transform:uppercase;line-height:1.35}
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);padding-inline:var(--m)}
+/* Shared text roles */
+.h2{font-size:var(--t-h2);font-weight:700;line-height:1.02;letter-spacing:-.035em;text-wrap:balance}
+.h2 em{font-size:1.14em;font-weight:400;letter-spacing:-.01em;line-height:.9}
+.lead{font-size:var(--t-lead);font-weight:500;line-height:1.32;letter-spacing:-.018em;text-wrap:pretty}
+.copy{max-width:44ch;color:var(--soft);text-wrap:pretty}
 
 /* Masks */
 .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}

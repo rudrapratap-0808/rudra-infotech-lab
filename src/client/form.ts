@@ -54,7 +54,7 @@ export function initForm(): void {
   };
 
   const control = (name: string): HTMLElement | null =>
-    form.querySelector<HTMLElement>(`fieldset[aria-describedby="f-${name}-err"]`) ||
+    form.querySelector<HTMLElement>(`fieldset[aria-describedby~="f-${name}-err"]`) ||
     form.querySelector<HTMLElement>(`[name="${name}"]`);
 
   const showError = (name: string, msg: string | null) => {
@@ -99,11 +99,6 @@ export function initForm(): void {
     form.hidden = true;
     success.hidden = false;
     success.focus();
-    const step1 = document.querySelector<HTMLElement>('[data-cstep="1"]');
-    const step2 = document.querySelector<HTMLElement>('[data-cstep="2"]');
-    step1?.classList.add("is-done");
-    const s1 = step1?.querySelector("b"); if (s1) s1.textContent = "Done";
-    const s2 = step2?.querySelector("b"); if (s2) s2.textContent = "Next";
   };
 
   // Live validation (after blur, or everywhere after the first submit attempt)
@@ -113,7 +108,7 @@ export function initForm(): void {
   });
   form.addEventListener("input", (e) => {
     const t = e.target as HTMLInputElement;
-    if (details && counter && (e.target as Element) === details) counter.textContent = `${String(details.value.length).padStart(4, "0")} / ${details.maxLength}`;
+    if (details && counter && (e.target as Element) === details) counter.textContent = `${details.value.length} / ${details.maxLength}`;
     if (attempted && rules[t.name]) validate(t.name);
   });
   form.addEventListener("change", (e) => {
@@ -197,7 +192,7 @@ export function initForm(): void {
       if (res.ok && body.ok !== false) {
         localStorage.setItem(STORE_KEY, String(Date.now()));
         form.reset();
-        if (counter && details) counter.textContent = `0000 / ${details.maxLength}`;
+        if (counter && details) counter.textContent = `0 / ${details.maxLength}`;
         showSuccess();
         return;
       }
@@ -229,7 +224,7 @@ export function initForm(): void {
     attempted = false;
     $$("[data-error-for]", form).forEach((el) => (el.textContent = ""));
     $$("[aria-invalid]", form).forEach((el) => el.removeAttribute("aria-invalid"));
-    if (counter && details) counter.textContent = `0000 / ${details.maxLength}`;
+    if (counter && details) counter.textContent = `0 / ${details.maxLength}`;
     setStatus("");
     success!.hidden = true;
     form.hidden = false;

@@ -153,7 +153,7 @@ export const seedServices: ServiceRec[] = [
     slug: "web-development",
     title: "Web Development",
     display: "Web|Development",
-    short_description: "Production-ready, from the first commit.",
+    short_description: "Clean, maintainable code that's ready to grow.",
     full_description:
       "Responsive, scalable websites built with clean, maintainable code — engineered to load fast and hold up as you grow.\n\nFrom static marketing sites to custom web applications with logins, dashboards and databases, we build what the project needs and nothing it doesn't.",
     points: ["Responsive builds", "Clean code", "Deployment"],
@@ -311,11 +311,11 @@ export const seedSeo: SeoSettings = {
 
 export const seedContent: Content = {
   hero: {
-    meta_1: "/ Digital foundry",
+    meta_1: "Design & development studio",
     meta_2: "India / Worldwide",
     serif: "Impossible to ignore.",
-    heading: "We build websites that make businesses impossible to ignore.",
-    description: "Modern, fast, responsive digital experiences — designed and developed for businesses, brands, startups and entrepreneurs.",
+    heading: "We design and build websites and Android apps for businesses ready to grow.",
+    description: "Business websites, online stores, landing pages and web apps — planned, designed, built and launched by one small, hands-on team.",
     primary_cta: "Start a project",
     secondary_cta: "View our work",
   },

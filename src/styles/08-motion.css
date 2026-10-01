@@ -4,25 +4,7 @@
    Without it (mobile, reduced motion, no JS) every chapter is
    a complete static layout.
    ============================================================ */
-.stage .phil__bar{visibility:hidden}
-.intro .hero__w{overflow:hidden}
 
-/* Work reel — five frames share one pinned stage */
-.stage .reel__list{position:relative;height:100vh;height:100svh}
-.stage .proj{position:absolute;inset:0;border:0;pointer-events:none}
-.stage .proj.is-current{pointer-events:auto}
-.stage .proj__in{height:100%;min-height:0}
-.stage .reel__rules{inset:0;z-index:4}
-.stage .reel__rules i{position:absolute;top:0;width:1px;height:100%;background:var(--paper);transform-origin:50% 50%}
-.stage .reel__sep{left:0;right:0;bottom:0;height:1px;background:var(--paper);transform:scaleX(0);transform-origin:50% 50%;z-index:4}
-
-/* Services — one blue stage */
-.stage .svc__stage{height:100vh;height:100svh;overflow:clip}
-.stage .si{position:absolute;inset:0;min-height:0;border-top:0}
-.stage .svc__bar{position:absolute;z-index:3;left:var(--m);right:var(--m);bottom:18px;display:grid;grid-template-columns:repeat(var(--n,8),1fr);gap:6px}
-.stage .svc__bar i{height:3px;background:rgb(241 238 230 / .3)}
-.stage .svc__bar i.is-on{background:var(--paper)}
-.stage .svc__wipe{position:absolute;inset:0;z-index:6;display:block;clip-path:circle(0% at 80% 26%)}
 
 /* Process — the horizontal foundry line */
 .stage .proc__stage{height:100vh;height:100svh;padding:0;overflow:clip}
@@ -30,23 +12,22 @@
 .stage .proc__label{grid-column:1/span 4}
 .stage .proc__title{grid-column:5/span 5;font-size:clamp(20px,.8rem + 1vw,34px)}
 .stage .proc__aside{grid-column:10/-1;font-size:14px}
-.stage .proc__status{position:absolute;z-index:2;left:var(--m);top:calc(58vh + 96px);display:flex;gap:26px;font-weight:500}
-.stage .proc__line{position:absolute;z-index:1;display:block;left:0;right:0;top:58vh;height:1.5px;background:var(--ink)}
+.stage .proc__status{position:absolute;z-index:2;left:var(--m);top:calc(52vh + 88px);display:flex;gap:26px;font-weight:500}
+.stage .proc__line{position:absolute;z-index:1;display:block;left:0;right:0;top:52vh;height:1.5px;background:var(--ink)}
 .stage .proc__fill{position:absolute;left:0;top:-3px;width:100%;height:7px;background:var(--ink);transform:scaleX(var(--p,0));transform-origin:left}
 .stage .proc__steps{position:absolute;inset:0;margin:0;border:0}
 .stage .st{position:absolute;inset:0;display:block;padding:0;border:0;pointer-events:none}
-.stage .st__node{position:absolute;z-index:3;top:58vh;left:calc(var(--m) + 48px + (100% - 2 * var(--m) - 96px) * var(--i) / var(--last,5));width:96px;height:96px;background:var(--orange);transform:translate(-50%,-50%) scale(var(--ns,1));transition:transform .6s var(--e-out),background-color .3s,color .3s}
+.stage .st__node{position:absolute;z-index:3;top:52vh;left:calc(var(--m) + 48px + (100% - 2 * var(--m) - 96px) * var(--i) / var(--last,5));width:96px;height:96px;background:var(--orange);transform:translate(-50%,-50%) scale(var(--ns,1));transition:transform .6s var(--e-out),background-color .3s,color .3s}
 .stage .st.is-active .st__node{--ns:1.45;background:var(--ink);color:var(--orange)}
 .stage .st.is-done .st__node{background:var(--ink);color:var(--orange)}
 .stage .st__meta{display:none}
-.stage .st__name{position:absolute;left:var(--m);top:calc(var(--nav-h) + 11vh);margin:0;font-size:min(17.6vw,27vh);clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--e-io)}
+.stage .st__name{position:absolute;left:var(--m);top:calc(var(--nav-h) + 9vh);margin:0;font-size:min(13vw,21vh);clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--e-io)}
 .stage .st__name-i{transform:translateY(30%);transition:transform .8s var(--e-out)}
 .stage .st.is-active .st__name{clip-path:inset(0 0 -10% 0)}
 .stage .st.is-active .st__name-i{transform:none}
-.stage .st__body{position:absolute;left:var(--m);top:calc(58vh + 130px);max-width:34ch;margin:0;opacity:0;transform:translateY(16px);transition:opacity .4s,transform .6s var(--e-out)}
+.stage .st__body{position:absolute;left:var(--m);top:calc(52vh + 124px);max-width:40ch;margin:0;font-size:var(--t-lead);opacity:0;transform:translateY(16px);transition:opacity .4s,transform .6s var(--e-out)}
 .stage .st.is-active .st__body{opacity:1;transform:none;transition-delay:.15s}
-.stage .viz{position:absolute;z-index:2;right:var(--m);top:calc(58vh + 80px);width:min(30vw,380px);margin:0}
-.stage .proc__flood{position:absolute;z-index:8;display:block;inset:0;transform:scaleY(0);transform-origin:50% 58%}
+.stage .viz{position:absolute;z-index:2;right:var(--m);top:calc(52vh + 88px);width:min(26vw,340px,calc((48vh - 130px) * 1.6));margin:0}
 
 /* Reduced motion: keep the layouts, drop the movement */
 @media (prefers-reduced-motion:reduce){

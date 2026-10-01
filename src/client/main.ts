@@ -6,7 +6,7 @@
 import { initAnchors, initCursor, initFooter, initMenu, initNav } from "./chrome.js";
 import { hasGsap, initScroll, lenis, reduced, root } from "./core.js";
 import { initForm } from "./form.js";
-import { intro } from "./intro.js";
+import { intro, revealHero } from "./intro.js";
 import { initScenes } from "./scenes.js";
 import { initLanes, initPlanes, initViz, initWhy } from "./widgets.js";
 import { initFilters } from "./whatsapp.js";
@@ -53,6 +53,7 @@ if (fx) {
   intro()
     .catch((err) => {
       console.error("[ritl:intro]", err);
+      revealHero();
       root.classList.remove("intro");
       document.querySelector("[data-preloader]")?.remove();
       lenis?.start();

@@ -39,7 +39,6 @@ export const philosophySection = () => {
   <span class="phil__bar" aria-hidden="true"></span>
   <div class="phil__intro grid">
     ${label(chapters.philosophy.n, chapters.philosophy.label, "phil__label")}
-    <p class="phil__frame mono" aria-hidden="true">Frame / 002</p>
     <p class="phil__lead">${esc(ph.lead)}</p>
     <h2 class="phil__statement serif" id="phil-title" data-split-lines>
       ${[ph.statement_1, ph.statement_2].filter(Boolean).map((l, i) => html`<span class="ln ln--${i + 1}"><span class="ln__i">${esc(l)}</span></span>`)}

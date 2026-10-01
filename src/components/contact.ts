@@ -1,30 +1,32 @@
 import { prettyPhone, waLink } from "../data/model.js";
 import { chapters } from "../data/site.js";
 import { D, socialLinks } from "../data/store.js";
-import { esc, EXT, html, nn, slugify } from "../lib/html.js";
+import { esc, EXT, html, slugify } from "../lib/html.js";
 import { arrow } from "./symbols.js";
 import { chapterAttr, label, waCta } from "./ui.js";
 
 const req = (r?: boolean) =>
   r ? `<span class="f__req" aria-hidden="true">*</span>` : `<span class="f__opt">Optional</span>`;
 
-const field = (n: number, o: { id: string; label: string; type?: string; required?: boolean; autocomplete?: string; placeholder?: string; inputmode?: string; max?: number }) => html`<div class="f">
-  <label class="f__label mono" for="f-${o.id}"><span class="f__n">${nn(n)} /</span>${esc(o.label)}${req(o.required)}</label>
-  <input class="f__input" id="f-${o.id}" name="${o.id}" type="${o.type ?? "text"}" ${o.required ? "required" : ""}
+const field = (o: { id: string; label: string; type?: string; required?: boolean; autocomplete?: string; placeholder?: string; inputmode?: string; max?: number; help?: string }) => html`<div class="f">
+  <label class="f__label" for="f-${o.id}">${esc(o.label)}${req(o.required)}</label>
+  <input class="f__input" id="f-${o.id}" name="${o.id}" type="${o.type ?? "text"}" ${o.required ? 'required aria-required="true"' : ""}
     ${o.autocomplete ? `autocomplete="${o.autocomplete}"` : ""} ${o.inputmode ? `inputmode="${o.inputmode}"` : ""}
-    maxlength="${o.max ?? 120}" placeholder="${esc(o.placeholder ?? "")}" aria-describedby="f-${o.id}-err">
-  <span class="f__rule" aria-hidden="true"></span>
-  <p class="f__err mono" id="f-${o.id}-err" data-error-for="${o.id}"></p>
+    maxlength="${o.max ?? 120}" placeholder="${esc(o.placeholder ?? "")}" aria-describedby="${o.help ? `f-${o.id}-help ` : ""}f-${o.id}-err">
+  ${o.help ? html`<p class="f__help" id="f-${o.id}-help">${esc(o.help)}</p>` : ""}
+  <p class="f__err" id="f-${o.id}-err" data-error-for="${o.id}"></p>
 </div>`;
 
-const choices = (n: number, name: string, legend: string, options: string[], required: boolean) => html`<fieldset class="f f--full f--choices" ${required ? 'data-required="true"' : ""} aria-describedby="f-${name}-err">
-  <legend class="f__label mono"><span class="f__n">${nn(n)} /</span>${esc(legend)}${req(required)}</legend>
+/** Single-choice chips (native radios: arrow keys move, one value is submitted). */
+const choices = (name: string, legend: string, options: string[], required: boolean, help = "") => html`<fieldset class="f f--full f--choices" ${required ? 'data-required="true"' : ""} aria-describedby="${help ? `f-${name}-help ` : ""}f-${name}-err">
+  <legend class="f__label">${esc(legend)}${req(required)}</legend>
+  ${help ? html`<p class="f__help" id="f-${name}-help">${esc(help)}</p>` : ""}
   <div class="sel">
     ${options.map(
       (o, i) => html`<label class="sel__o"><input type="radio" name="${name}" value="${esc(o)}" id="f-${name}-${slugify(o) || i}" ${required ? "required" : ""}><span>${esc(o)}</span></label>`
     )}
   </div>
-  <p class="f__err mono" id="f-${name}-err" data-error-for="${name}"></p>
+  <p class="f__err" id="f-${name}-err" data-error-for="${name}"></p>
 </fieldset>`;
 
 const details = () => {
@@ -42,7 +44,7 @@ const details = () => {
   )}</dl>`;
 };
 
-const STATUS = { available: "Accepting briefs", limited: "Limited availability", closed: "Not accepting projects" } as const;
+const STATUS = { available: "Accepting new projects", limited: "Limited availability", closed: "Not taking new projects" } as const;
 
 /* ── 09 CONTACT — ORANGE ──────────────────────────────────── */
 export const contactSection = (o: { level?: "h1" | "h2"; id?: string } = {}) => {
@@ -53,20 +55,22 @@ export const contactSection = (o: { level?: "h1" | "h2"; id?: string } = {}) => 
   return html`<section class="contact" id="${o.id ?? "contact"}" data-theme="orange" ${chapterAttr("contact")} aria-labelledby="contact-title">
   <div class="contact__head grid">
     ${label(chapters.contact.n, chapters.contact.label, "contact__label")}
-    <p class="contact__st mono" aria-hidden="true">Status / ${esc(STATUS[contact.availability] ?? STATUS.available)}</p>
-    <${H} class="contact__title display" id="contact-title"><span class="ln"><span class="ln__i">${esc(c.heading_1)}</span></span> <span class="ln"><span class="ln__i">${esc(c.heading_2)}</span></span></${H}>
-    <p class="contact__serif serif"><em class="serif">${esc(c.serif)}</em></p>
+    <p class="contact__st mono">${esc(STATUS[contact.availability] ?? STATUS.available)}</p>
+    <${H} class="contact__title" id="contact-title"><span class="ln display"><span class="ln__i">${esc(c.heading_1)} ${esc(c.heading_2)}</span></span>${c.serif ? html` <span class="contact__serif serif ln"><em class="serif ln__i">${esc(c.serif)}</em></span>` : ""}</${H}>
   </div>
 
   <div class="contact__body grid">
     <aside class="contact__side">
-      <p class="contact__lede">${esc(c.description)}</p>
+      <p class="contact__lede lead">${esc(c.description)}</p>
       ${waCta(c.whatsapp_cta, contact.whatsapp_message, "ink", 'data-wa-contact')}
-      <ol class="contact__steps mono" role="list" aria-label="What happens next">
-        <li data-cstep="1"><span>01 /</span><span>You share the brief</span><b data-cstep-status>Waiting</b></li>
-        <li data-cstep="2"><span>02 /</span><span>We reply with questions &amp; next steps</span><b>Queued</b></li>
-        <li data-cstep="3"><span>03 /</span><span>We agree scope, timeline &amp; quote</span><b>Queued</b></li>
-      </ol>
+      <div class="contact__next">
+        <${H2} class="contact__h mono">What happens next</${H2}>
+        <ol class="contact__steps" role="list">
+          <li><span class="mono">01</span><span>You send the brief — a few lines is enough.</span></li>
+          <li><span class="mono">02</span><span>We reply with questions and suggested next steps.</span></li>
+          <li><span class="mono">03</span><span>We agree the scope, timeline and quote before any work starts.</span></li>
+        </ol>
+      </div>
       ${details()}
     </aside>
 
@@ -78,20 +82,20 @@ export const contactSection = (o: { level?: "h1" | "h2"; id?: string } = {}) => 
         data-button="${esc(c.button)}"
         aria-describedby="form-note">
         <div class="form__grid">
-          ${field(1, { id: "name", label: "Your name", required: true, autocomplete: "name", placeholder: "Full name", max: 80 })}
-          ${field(2, { id: "email", label: "Email", type: "email", required: true, autocomplete: "email", placeholder: "you@business.com", max: 120 })}
-          ${field(3, { id: "phone", label: "Phone / WhatsApp", type: "tel", autocomplete: "tel", inputmode: "tel", placeholder: "+91 …", max: 24 })}
-          ${field(4, { id: "company", label: "Company / Business", autocomplete: "organization", placeholder: "Business name", max: 100 })}
-          ${choices(5, "service", "Service needed", form.services, true)}
-          ${form.budgets.length ? choices(6, "budget", "Estimated budget", form.budgets, false) : ""}
+          ${field({ id: "name", label: "Your name", required: true, autocomplete: "name", placeholder: "Full name", max: 80 })}
+          ${field({ id: "email", label: "Email", type: "email", required: true, autocomplete: "email", placeholder: "you@business.com", max: 120 })}
+          ${field({ id: "phone", label: "Phone or WhatsApp", type: "tel", autocomplete: "tel", inputmode: "tel", placeholder: `+${contact.default_country_code || "91"} …`, max: 24, help: "Include your country code, e.g. +91 or +351." })}
+          ${field({ id: "company", label: "Company or business", autocomplete: "organization", placeholder: "Business name", max: 100 })}
+          ${choices("service", "Service needed", form.services, true, "Choose the closest match.")}
+          ${form.budgets.length ? choices("budget", "Estimated budget", form.budgets, false, form.budgets.some((b) => b.includes("₹")) ? "Amounts in Indian rupees (₹)." : "") : ""}
           <div class="f f--full f--details">
-            <label class="f__label mono" for="f-details"><span class="f__n">${nn(form.budgets.length ? 7 : 6)} /</span>Project details${req(true)}</label>
-            <textarea class="f__input f__area" id="f-details" name="details" rows="6" required minlength="20" maxlength="2000"
-              placeholder="What are you building, who is it for, and when do you need it?" aria-describedby="f-details-err f-details-count"></textarea>
-            <span class="f__rule" aria-hidden="true"></span>
+            <label class="f__label" for="f-details">Project details${req(true)}</label>
+            <p class="f__help" id="f-details-help">What are you building, who is it for, and when do you need it? At least 20 characters.</p>
+            <textarea class="f__input f__area" id="f-details" name="details" rows="5" required aria-required="true" minlength="20" maxlength="2000"
+              placeholder="e.g. A website for our bakery with a menu, photos and an order enquiry form, live by March." aria-describedby="f-details-help f-details-err f-details-count"></textarea>
             <div class="f__row">
-              <p class="f__err mono" id="f-details-err" data-error-for="details"></p>
-              <p class="f__count mono" id="f-details-count" data-count>0000 / 2000</p>
+              <p class="f__err" id="f-details-err" data-error-for="details"></p>
+              <p class="f__count mono" id="f-details-count" data-count>0 / 2000</p>
             </div>
           </div>
           <div class="hp" aria-hidden="true">
@@ -112,7 +116,6 @@ export const contactSection = (o: { level?: "h1" | "h2"; id?: string } = {}) => 
       </form>
 
       <div class="form__success" data-success hidden tabindex="-1">
-        <p class="mono">Status / Received</p>
         <${H2} class="form__done display" data-success-title>${esc(c.success_title)}</${H2}>
         <p class="form__thanks" data-success-text>${esc(c.success_text)}</p>
         <div class="form__again">
